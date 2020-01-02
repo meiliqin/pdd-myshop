@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
-public class pddMain {
+public class ddMainP {
     public static String clientId = "864a62d925204fa29d5a2d2b22d8c67e";
     public static String clientSecret = "f821108d75c0dc7951e94cdd27103a28d19c7839";
     public static String redirectUri = "https://mms.pinduoduo.com";
@@ -23,7 +23,7 @@ public class pddMain {
         try {
             String CodeUrl = getCodeUrl();
             System.out.println("CodeUrl:" + CodeUrl);
-            String code = "23eee16e3cc643c3908e330d965bd24e9ea90014";
+            String code = "e93172c158c7497da3f0511cad6f7410fb801bc3";
             AccessTokenResponse accessTokenResponse = client.generate(code);
             accessToken = accessTokenResponse.getAccessToken();
 //            String ownerName = accessTokenResponse.getOwnerName();
