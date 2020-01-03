@@ -22,11 +22,11 @@ public class PopClientDemo {
     static final int pageSize = 100;
     static final String daytimeStart = "00:00:00";
     static final String daytimeEnd = "23:59:59";
-    static final String date = "2019-12-30";
+    static final String date = "2020-01-02";
     static SaleResult saleResult = new SaleResult(date, "当日销量数据");
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main2(String[] args) throws Exception {
         String accessToken = "3e76ecaa088944d79f283d2872a2c60f51e099f7";
 
         PopClient client = new PopHttpClient(clientId, clientSecret);
@@ -51,14 +51,14 @@ public class PopClientDemo {
             for (int i = 2; i <= page; i++) {
                 PddOrderListGetResponse response = getOrderListGetResponse(client, i, accessToken);
                 List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> orderList = response.getOrderListGetResponse().getOrderList();
-                System.out.println("正在统计第"+i+"页订单:" + orderList.size() + "条...");
+                System.out.println("正在统计第" + i + "页订单:" + orderList.size() + "条...");
                 calOrderList(orderList);
             }
         }
 
-        Collections.sort(saleResult.daySale,new GoodComparator());
-        for (GoodItem goodItem:saleResult.daySale){
-            Collections.sort(goodItem.sku_list,new SkuComparator());
+        Collections.sort(saleResult.daySale, new GoodComparator());
+        for (GoodItem goodItem : saleResult.daySale) {
+            Collections.sort(goodItem.sku_list, new SkuComparator());
         }
         System.out.println("统计完成，输出结果：");
         System.out.println(JsonUtil.transferToJson(saleResult));
@@ -154,10 +154,10 @@ public class PopClientDemo {
         return date.getTime();
     }
 
-    public static void main2(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         String clientId = ddMainP.clientId;
         String clientSecret = ddMainP.clientSecret;
-        String accessToken = "1e3df846fa574bb0a978bafe49fbb61fdd24d75e";
+        String accessToken = "3e76ecaa088944d79f283d2872a2c60f51e099f7";
         PopClient client = new PopHttpClient(clientId, clientSecret);
         PddGoodsListGetRequest request = new PddGoodsListGetRequest();
 //        request.setOuterId("str");
@@ -169,6 +169,52 @@ public class PopClientDemo {
 //        request.setCostTemplateId(0L);
         PddGoodsListGetResponse response = client.syncInvoke(request, accessToken);
         System.out.println(JsonUtil.transferToJson(response));
+        List<PddGoodsListGetResponse.GoodsListGetResponseGoodsListItem> goodsList = response.getGoodsListGetResponse().getGoodsList();
+//        CostResult costResult = new CostResult();
+//        for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItem goodsListItem : goodsList) {
+//            CostResult.GoodItem goodItem = new CostResult.GoodItem();
+//            goodItem.goods_id = goodsListItem.getGoodsId();
+//            goodItem.goods_name = goodsListItem.getGoodsName();
+//            goodItem.thumb_url = goodsListItem.getThumbUrl();
+//            List<PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem> skuListItems = goodsListItem.getSkuList();
+//
+//            for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem skuListItem : skuListItems) {
+//                CostResult.SkuItem skuItem = new CostResult.SkuItem();
+//                skuItem.sku_id = skuListItem.getSkuId();
+//                skuItem.spec = skuListItem.getSpec();
+//                skuItem.purchase_price = 0.00;
+//                goodItem.sku_list.add(skuItem);
+//
+//            }
+//            costResult.goodCostList.add(goodItem);
+//            costResult.per_order_postage = 3.20;
+//        }
+//
+//        System.out.println(JsonUtil.transferToJson(costResult));
+
+
+        StockResult stockResult = new StockResult();
+        for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItem goodsListItem : goodsList) {
+            StockResult.GoodItem goodItem = new StockResult.GoodItem();
+            goodItem.goods_id = goodsListItem.getGoodsId();
+            goodItem.goods_name = goodsListItem.getGoodsName();
+            goodItem.thumb_url = goodsListItem.getThumbUrl();
+            List<PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem> skuListItems = goodsListItem.getSkuList();
+
+            for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem skuListItem : skuListItems) {
+                StockResult.SkuItem skuItem = new StockResult.SkuItem();
+                skuItem.sku_id = skuListItem.getSkuId();
+                skuItem.spec = skuListItem.getSpec();
+                skuItem.sku_stock_quantity = 0;
+                goodItem.sku_list.add(skuItem);
+            }
+            goodItem.good_stock_quantity=-1;
+            stockResult.goodStockList.add(goodItem);
+        }
+
+        System.out.println(JsonUtil.transferToJson(stockResult));
+
+
     }
 
 

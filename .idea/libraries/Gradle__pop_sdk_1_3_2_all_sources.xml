@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: pop-sdk-1.3.2-all-sources">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/pop-sdk-1.3.2-all-sources.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
