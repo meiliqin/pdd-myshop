@@ -67,7 +67,13 @@
         </c:forEach>
 
         当前页面第<font id="nowPage" style="color: red;">1</font>页面
+
     </div>
+    <div id="result" style="text-align: center; margin-top: 20px;">
+       返回结果：${titleList}
+
+    </div>
+
 </body>
 
 <script type="text/javascript">

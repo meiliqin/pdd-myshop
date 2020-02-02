@@ -23,7 +23,9 @@ public class AccountServiceImpl implements AccountService {
     public TbAccount login(String username, String password) {
         TbAccountExample example = new TbAccountExample();
         TbAccountExample.Criteria criteria = example.createCriteria();
-        criteria.andUsernameEqualTo(username).andPasswordEqualTo(Md5Utils.encode(password));
+//        criteria.andUsernameEqualTo(username).andPasswordEqualTo(Md5Utils.encode(password));
+        criteria.andUsernameEqualTo(username).andPasswordEqualTo(password);
+
         List<TbAccount> list = tbAccountMapper.selectByExample(example);
         if (list != null && list.size() > 0){
             return list.get(0);
@@ -35,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
     public void save(String username, String password) throws Exception{
         TbAccount tbAccount = new TbAccount();
         tbAccount.setUsername(username);
+//        tbAccount.setPassword(Md5Utils.encode(password));
         tbAccount.setPassword(Md5Utils.encode(password));
 
         Date currentDate = new Date();

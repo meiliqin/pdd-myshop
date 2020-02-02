@@ -4,6 +4,7 @@ import com.ht.weichat.pojo.TbAccount;
 import com.ht.weichat.pojo.TbArticle;
 import com.ht.weichat.pojo.TbType;
 import com.ht.weichat.service.ArticleService;
+import com.ht.weichat.service.SalesService;
 import com.ht.weichat.service.TypeService;
 import com.ht.weichat.utils.ConstantPool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,43 @@ public class PageController {
     @Autowired
     private ArticleService articleService;
 
+    @Autowired
+    private SalesService salesService;
+
     @RequestMapping("/")
     public String showIndex(Model model) {
-        return "login";
+        return "index";
     }
 
+
+    @RequestMapping("/query_yesterday_sales")
+    public String showYesterdaySales(Model model) {
+        String result=salesService.yesterday();
+        if(result.equals("access_token已过期")){
+            model.addAttribute("codeUrl", salesService.getCodeUrl());
+
+        }
+        model.addAttribute("yesterday_sales", result);
+
+        return "query_yesterday_sales";
+    }
+    @RequestMapping("/get_access_token")
+    public String refreshAccessToken(Model model,HttpServletRequest request) {
+        String code = request.getParameter("code");
+        String token=salesService.getAccessTokenFromCode(code);
+        model.addAttribute("access_token", token);
+        String result=salesService.yesterday();
+        model.addAttribute("yesterday_sales", result);
+        return "query_yesterday_sales";
+    }
+
+    @RequestMapping("/query_unsend_sales")
+    public String showUnSendSales(Model model) {
+        String result=salesService.unsend();
+        model.addAttribute("unsend_sales", result);
+
+        return "query_unsend_sales";
+    }
     @RequestMapping("/admin")
     public String showAdmin(Model model, HttpServletRequest request) {
         TbAccount account = (TbAccount) request.getSession().getAttribute("global.account");
