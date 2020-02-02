@@ -1,6 +1,7 @@
 package com.ht.weichat.service.impl;
 
 import com.ht.weichat.service.*;
+import com.pdd.pop.ext.apache.commons.logging.Log;
 import com.pdd.pop.sdk.common.util.JsonUtil;
 import com.pdd.pop.sdk.http.PopAccessTokenClient;
 import com.pdd.pop.sdk.http.PopClient;
@@ -8,8 +9,12 @@ import com.pdd.pop.sdk.http.PopHttpClient;
 import com.pdd.pop.sdk.http.api.request.PddOrderListGetRequest;
 import com.pdd.pop.sdk.http.api.response.PddOrderListGetResponse;
 import com.pdd.pop.sdk.http.token.AccessTokenResponse;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -26,7 +31,12 @@ public class SalesServiceImpl implements SalesService {
     public static final String daytimeStart = "00:00:00";
     public static final String daytimeEnd = "23:59:59";
 //    public static String accessToken = "14bc0edea9da4da2bc47ebb7f0aeb6c8f9052bb0";
+    //todo
     public static String accessToken="4a24278bbfd348e29b95d1be617a8060e6ef3f12";
+    //todo
+    public static Date syncDate=null;
+    public static final String saleDir="/users/meiliqin/project/pdd-myshop/xcxcms/sales";
+    private Logger logger = Logger.getLogger("SalesServiceImpl");
 
     @Override
     public  String getCodeUrl() {
@@ -60,26 +70,128 @@ public class SalesServiceImpl implements SalesService {
     @Override
     public String unsend() {
         Date today = new Date();
+        SaleResult saleResult = new SaleResult(today.toLocaleString(), "未发货销量数据");
+        PopClient client = new PopHttpClient(clientId, clientSecret);
+        int dayIndex=1;
+        long startTime=today.getTime() / 1000L-86400*dayIndex;
+        long endTime=today.getTime() / 1000L;
+        //最多统计15天未发货
+        while (dayIndex<=30) {
+            PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1, startTime, endTime, 1, accessToken);
+            if (firstResponse == null) {
+                logger.info("获取数据失败");
+                break;
+            }
+            if (firstResponse.getOrderListGetResponse() == null) {
+                if (firstResponse.getErrorResponse() != null) {
+                    logger.info(firstResponse.getErrorResponse().getErrorMsg());
+                }
+                logger.info("获取订单失败");
+                break;
+            }
+            List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> firstOrderList = firstResponse.getOrderListGetResponse().getOrderList();
+            int totalCount = firstResponse.getOrderListGetResponse().getTotalCount();
+            logger.info("正在统计未发货订单:"+"第"+dayIndex+"天"+"：订单数"+totalCount);
+
+//            if(totalCount<=0){
+//                break;
+//            }
+            saleResult.total_order_count += totalCount;
+            calOrderList(firstOrderList, saleResult);
+            if (totalCount > firstOrderList.size()) {
+                int page = totalCount % pageSize > 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
+                for (int i = 2; i <= page; i++) {
+                    PddOrderListGetResponse response = getOrderListGetResponse(client, 1, startTime, endTime, i, accessToken);
+                    List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> orderList = response.getOrderListGetResponse().getOrderList();
+                    calOrderList(orderList, saleResult);
+                }
+            }
+            dayIndex++;
+            startTime=startTime-86400;
+            endTime=endTime-86400;
+        }
+
+        Collections.sort(saleResult.daySale, new GoodComparator());
+        for (GoodItem goodItem : saleResult.daySale) {
+            Collections.sort(goodItem.sku_list, new SkuComparator());
+        }
+
+        String result= JsonUtil.transferToJson(saleResult);
+        writeDateToFile(today.toLocaleString()+"未发货",result);
+        return result;
+    }
+
+    @Override
+    public String sync() {
+        Date today = new Date();
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 1);
         String date=new StringBuilder().append(calendar.get(Calendar.YEAR)).append("-")
                 .append(calendar.get(Calendar.MONTH)+1).append("-").append(calendar.get(Calendar.DAY_OF_MONTH)).toString();
-        SaleResult saleResult = new SaleResult(date, "未发货销量数据");
-        PopClient client = new PopHttpClient(clientId, clientSecret);
-        long startTime=today.getTime() / 1000L-86400;
-        long endTime=today.getTime() / 1000L;
-        PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1,startTime,endTime,1, accessToken);
-        if (firstResponse == null) {
-            return "获取数据失败";
+        SaleResult saleResult= getDateSales(date);
+        //return JsonUtil.transferToJson(saleResult);
+
+
+        return null;
+    }
+
+    private  void writeDateToFile(String filename,String sales){
+        FileWriter writer;
+        String fileName = saleDir + filename + ".txt";
+        try {
+            writer = new FileWriter(fileName);
+            writer.write("");
+            writer.write(sales);
+            writer.flush();
+            writer.close();
+            logger.info("写入到文件："+fileName);
+
+        } catch (IOException e) {
+            logger.info("写入文件出错："+e.getMessage());
+            e.printStackTrace();
         }
+    }
+    @Override
+    public String yesterday(){
+//        String date = "2020-01-12";
+        Date today = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 1);
+        String date=new StringBuilder().append(calendar.get(Calendar.YEAR)).append("-")
+                .append(calendar.get(Calendar.MONTH)+1).append("-").append(calendar.get(Calendar.DAY_OF_MONTH)).toString();
+        SaleResult saleResult= getDateSales(date);
+        return JsonUtil.transferToJson(saleResult);
+
+    }
+
+
+    public SaleResult getDateSales(String date){
+        SaleResult saleResult = new SaleResult(date, "日销量数据");
+
+        PopClient client = new PopHttpClient(clientId, clientSecret);
+
+        PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, date,1, accessToken);
+        if (firstResponse == null) {
+            logger.info("获取数据失败");
+            return null;
+        }
+
         if (firstResponse.getOrderListGetResponse() == null){
             if(firstResponse.getErrorResponse()!=null ){
-                return firstResponse.getErrorResponse().getErrorMsg();
+                logger.info( firstResponse.getErrorResponse().getErrorMsg());
             }
-            return "获取订单失败";
+            logger.info("获取订单失败");
+            return null;
         }
 
         List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> firstOrderList = firstResponse.getOrderListGetResponse().getOrderList();
         int totalCount = firstResponse.getOrderListGetResponse().getTotalCount();
+        //System.out.println("当日订单：" + totalCount + "条");
+        if (firstOrderList == null) {
+            logger.info("没有获取到订单数据");
+        }
         // System.out.println("正在统计第一页订单:" + firstOrderList.size() + "条...");
         saleResult.total_order_count=totalCount;
         calOrderList(firstOrderList,saleResult);
@@ -100,61 +212,7 @@ public class SalesServiceImpl implements SalesService {
         }
         // System.out.println("统计完成，输出结果：");
         //System.out.println(JsonUtil.transferToJson(saleResult));
-        return JsonUtil.transferToJson(saleResult);
-    }
-
-    @Override
-    public String yesterday(){
-//        String date = "2020-01-12";
-        Date today = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 1);
-        String date=new StringBuilder().append(calendar.get(Calendar.YEAR)).append("-")
-                .append(calendar.get(Calendar.MONTH)+1).append("-").append(calendar.get(Calendar.DAY_OF_MONTH)).toString();
-        SaleResult saleResult = new SaleResult(date, "昨日销量数据");
-
-        PopClient client = new PopHttpClient(clientId, clientSecret);
-
-        PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, date,1, accessToken);
-        if (firstResponse == null) {
-            return "获取数据失败";
-        }
-
-        if (firstResponse.getOrderListGetResponse() == null){
-            if(firstResponse.getErrorResponse()!=null ){
-                return firstResponse.getErrorResponse().getErrorMsg();
-            }
-        return "获取订单失败";
-        }
-
-        List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> firstOrderList = firstResponse.getOrderListGetResponse().getOrderList();
-        int totalCount = firstResponse.getOrderListGetResponse().getTotalCount();
-        //System.out.println("当日订单：" + totalCount + "条");
-        if (firstOrderList == null) {
-            return "没有获取到订单数据";
-        }
-       // System.out.println("正在统计第一页订单:" + firstOrderList.size() + "条...");
-        saleResult.total_order_count=totalCount;
-        calOrderList(firstOrderList,saleResult);
-        if (totalCount > firstOrderList.size()) {
-            int page = totalCount % pageSize > 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
-            //System.out.println("剩余数据:" + (page - 1) + "页...");
-            for (int i = 2; i <= page; i++) {
-                PddOrderListGetResponse response = getOrderListGetResponse(client, date,i, accessToken);
-                List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> orderList = response.getOrderListGetResponse().getOrderList();
-                //System.out.println("正在统计第" + i + "页订单:" + orderList.size() + "条...");
-                calOrderList(orderList,saleResult);
-            }
-        }
-
-        Collections.sort(saleResult.daySale, new GoodComparator());
-        for (GoodItem goodItem : saleResult.daySale) {
-            Collections.sort(goodItem.sku_list, new SkuComparator());
-        }
-       // System.out.println("统计完成，输出结果：");
-        //System.out.println(JsonUtil.transferToJson(saleResult));
-        return JsonUtil.transferToJson(saleResult);
+        return saleResult;
 
     }
 
@@ -176,7 +234,7 @@ public class SalesServiceImpl implements SalesService {
         try {
             PddOrderListGetRequest request = new PddOrderListGetRequest();
             request.setOrderStatus(orderStatus);
-            request.setRefundStatus(5);
+            request.setRefundStatus(orderStatus==1?1:5);
             request.setStartConfirmAt(startTime);
             request.setEndConfirmAt(endTime);
             request.setPage(page);

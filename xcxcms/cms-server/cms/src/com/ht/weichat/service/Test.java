@@ -7,6 +7,8 @@ public class Test {
     public static void main(String arg[]) {
         String date = "2020-01-12";
         Date today = new Date();
+        System.out.println(today.toLocaleString());
+
         Calendar calendar = Calendar.getInstance();
 //        calendar.setTime(today);
 //        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 1);

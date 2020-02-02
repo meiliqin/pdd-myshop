@@ -65,6 +65,14 @@ public class PageController {
 
         return "query_unsend_sales";
     }
+    @RequestMapping("/sync_sales")
+    public String showSyncSales(Model model) {
+        String result=salesService.sync();
+        model.addAttribute("sales", result);
+
+        return "sync_sales";
+    }
+
     @RequestMapping("/admin")
     public String showAdmin(Model model, HttpServletRequest request) {
         TbAccount account = (TbAccount) request.getSession().getAttribute("global.account");
