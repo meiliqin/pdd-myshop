@@ -33,7 +33,7 @@ public class PageController {
 
     @RequestMapping("/")
     public String showIndex(Model model) {
-        return "index";
+        return "login";
     }
 
 
