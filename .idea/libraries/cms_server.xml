@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="cms-server">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/xcxcms/cms-server/druid-1.0.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/xcxcms/cms-server/mysql-connector-java-5.0.8-bin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
