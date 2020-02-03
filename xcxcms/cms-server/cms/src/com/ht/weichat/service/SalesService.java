@@ -13,7 +13,7 @@ public interface SalesService {
     public  String getCodeUrl();
     public String getAccessTokenFromCode(String code);
     public String unsend();
-    public String sync();
+    public String week();
 
 
 }

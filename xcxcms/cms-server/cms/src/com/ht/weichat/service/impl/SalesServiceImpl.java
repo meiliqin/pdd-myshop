@@ -122,7 +122,8 @@ public class SalesServiceImpl implements SalesService {
     }
 
     @Override
-    public String sync() {
+    public String week() {
+        //todo
         Date today = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
@@ -162,7 +163,12 @@ public class SalesServiceImpl implements SalesService {
         String date=new StringBuilder().append(calendar.get(Calendar.YEAR)).append("-")
                 .append(calendar.get(Calendar.MONTH)+1).append("-").append(calendar.get(Calendar.DAY_OF_MONTH)).toString();
         SaleResult saleResult= getDateSales(date);
-        return JsonUtil.transferToJson(saleResult);
+        if(saleResult!=null){
+            return JsonUtil.transferToJson(saleResult);
+        }else {
+            return "可能是access_token已过期";
+        }
+
 
     }
 

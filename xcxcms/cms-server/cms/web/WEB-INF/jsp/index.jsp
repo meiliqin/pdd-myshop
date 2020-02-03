@@ -21,7 +21,7 @@
             <a href="${pageContext.request.contextPath}/query_yesterday_sales">昨日销量</a>
         </td>
         <td>
-            <a href="${pageContext.request.contextPath}/sync_sales">同步订单</a>
+            <a href="${pageContext.request.contextPath}/query_week_sales">一周销量</a>
         </td>
     </tr>
 </table>

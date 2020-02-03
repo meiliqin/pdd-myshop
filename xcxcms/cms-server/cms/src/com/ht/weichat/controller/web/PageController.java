@@ -33,14 +33,14 @@ public class PageController {
 
     @RequestMapping("/")
     public String showIndex(Model model) {
-        return "login";
+        return "index";
     }
 
 
     @RequestMapping("/query_yesterday_sales")
     public String showYesterdaySales(Model model) {
         String result=salesService.yesterday();
-        if(result.equals("access_token已过期")){
+        if(result.contains("access_token已过期")){
             model.addAttribute("codeUrl", salesService.getCodeUrl());
 
         }
@@ -65,12 +65,12 @@ public class PageController {
 
         return "query_unsend_sales";
     }
-    @RequestMapping("/sync_sales")
-    public String showSyncSales(Model model) {
-        String result=salesService.sync();
+    @RequestMapping("/query_week_sales")
+    public String showWeekSales(Model model) {
+        String result=salesService.week();
         model.addAttribute("sales", result);
 
-        return "sync_sales";
+        return "login";
     }
 
     @RequestMapping("/admin")
