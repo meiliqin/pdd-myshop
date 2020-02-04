@@ -24,21 +24,5 @@
 <div id="sales_result" style="text-align: center; margin-top: 20px;">
     昨日销量：${yesterday_sales}
 </div>
-<div id="get_token" style="text-align: center; margin-top: 20px;">
-    获取access_token地址(在新标签页中打开)：<a href="${codeUrl}">${codeUrl}</a>
-</div>
-
-<%--<div id="token2" style="text-align: center; margin-top: 20px;">--%>
-<%--    请在浏览器打开该地址，将得到的code填入下方：${codeUrl}--%>
-<%--</div>--%>
-<form action="${pageContext.request.contextPath}/get_access_token" method="get">
-    请输入回调地址https://mms.pinduoduo.com/home后的code值：<input type="text" name="code">
-    <input type="submit" value="提交">
-    <input type="reset" value="重置">
-</form>
-
-<div id="token_value" style="text-align: center; margin-top: 20px;">
-    access_token：${access_token}
-</div>
 </body>
 </html>

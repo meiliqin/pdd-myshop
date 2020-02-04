@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +37,12 @@ public class PageController {
         return "index";
     }
 
+    @RequestMapping("/index")
+    public String showIndex(Model model,
+                            @RequestParam(defaultValue = "0") String token) {
+        model.addAttribute("access_token", "已刷新"+token);
+        return "index";
+    }
 
     @RequestMapping("/query_yesterday_sales")
     public String showYesterdaySales(Model model) {
@@ -48,14 +55,21 @@ public class PageController {
 
         return "query_yesterday_sales";
     }
+    @RequestMapping("/refresh_access_token")
+    public String refreshAccessToken(Model model) {
+        String token=salesService.getCurAccessToken();
+        String codeUrl=salesService.getCodeUrl();
+        model.addAttribute("cur_access_token", token);
+        model.addAttribute("codeUrl", codeUrl);
+//        model.addAttribute("token_date", new Date());
+        return "refresh_access_token";
+    }
+
     @RequestMapping("/get_access_token")
-    public String refreshAccessToken(Model model,HttpServletRequest request) {
+    public String getAccessToken(Model model,HttpServletRequest request) {
         String code = request.getParameter("code");
         String token=salesService.getAccessTokenFromCode(code);
-        model.addAttribute("access_token", token);
-        String result=salesService.yesterday();
-        model.addAttribute("yesterday_sales", result);
-        return "query_yesterday_sales";
+        return "redirect:/index?access_token="+token;
     }
 
     @RequestMapping("/query_unsend_sales")
@@ -70,6 +84,12 @@ public class PageController {
         String result=salesService.week();
         model.addAttribute("sales", result);
 
+        return "login";
+    }
+
+
+    @RequestMapping("/cms")
+    public String showCms(Model model) {
         return "login";
     }
 

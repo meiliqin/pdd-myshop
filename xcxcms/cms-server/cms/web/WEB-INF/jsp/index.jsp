@@ -23,12 +23,19 @@
         <td>
             <a href="${pageContext.request.contextPath}/query_week_sales">一周销量</a>
         </td>
+        <td>
+            <a href="${pageContext.request.contextPath}/refresh_access_token">刷新token</a>
+        </td>
+        <td>
+            <a href="${pageContext.request.contextPath}/cms">一个参考示例cms</a>
+        </td>
     </tr>
 </table>
-<%--<form action="${pageContext.request.contextPath}/query_sales" method="get">--%>
-<%--    请输入城市名：<input type="text" name="city_name">--%>
-<%--    <input type="submit" value="提交">--%>
-<%--    <input type="reset" value="重置">--%>
-<%--</form>--%>
+
+<<div id="token_value" style="text-align: center; margin-top: 20px;">
+    access_token：${access_token}
+</div>
+
+
 </body>
 </html>

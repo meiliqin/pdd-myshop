@@ -32,10 +32,10 @@ public class SalesServiceImpl implements SalesService {
     public static final String daytimeEnd = "23:59:59";
 //    public static String accessToken = "14bc0edea9da4da2bc47ebb7f0aeb6c8f9052bb0";
     //todo
-    public static String accessToken="4a24278bbfd348e29b95d1be617a8060e6ef3f12";
+    public static String accessToken="c9395a204a914dd9ae65b9080fbadd04ee71f4d7";
     //todo
     public static Date syncDate=null;
-    public static final String saleDir="/users/meiliqin/project/pdd-myshop/xcxcms/sales";
+    public static final String saleDir="/users/meiliqin/project/pdd-myshop/xcxcms/sales/";
     private Logger logger = Logger.getLogger("SalesServiceImpl");
 
     @Override
@@ -51,6 +51,11 @@ public class SalesServiceImpl implements SalesService {
     }
 
     @Override
+    public String getCurAccessToken() {
+        return accessToken;
+    }
+
+    @Override
     public String getAccessTokenFromCode(String code) {
 
         try {
@@ -59,8 +64,10 @@ public class SalesServiceImpl implements SalesService {
                     clientSecret);
             AccessTokenResponse accessTokenResponse = client.generate(code);
             accessToken = accessTokenResponse.getAccessToken();
+            logger.info("accesstoken:"+accessToken);
             return accessToken;
         } catch (Exception e) {
+
             e.printStackTrace();
         }
 
@@ -75,7 +82,7 @@ public class SalesServiceImpl implements SalesService {
         int dayIndex=1;
         long startTime=today.getTime() / 1000L-86400*dayIndex;
         long endTime=today.getTime() / 1000L;
-        //最多统计15天未发货
+        //最多统计30天未发货
         while (dayIndex<=30) {
             PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1, startTime, endTime, 1, accessToken);
             if (firstResponse == null) {
@@ -117,7 +124,7 @@ public class SalesServiceImpl implements SalesService {
         }
 
         String result= JsonUtil.transferToJson(saleResult);
-        writeDateToFile(today.toLocaleString()+"未发货",result);
+       // writeDateToFile(today.toLocaleString()+"未发货",result);
         return result;
     }
 
@@ -166,7 +173,7 @@ public class SalesServiceImpl implements SalesService {
         if(saleResult!=null){
             return JsonUtil.transferToJson(saleResult);
         }else {
-            return "可能是access_token已过期";
+            return "可能是access_token已过期,请刷新";
         }
 
 

@@ -12,6 +12,7 @@ public interface SalesService {
     public String yesterday();
     public  String getCodeUrl();
     public String getAccessTokenFromCode(String code);
+    public String getCurAccessToken();
     public String unsend();
     public String week();
 
