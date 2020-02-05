@@ -32,7 +32,7 @@
     </tr>
 </table>
 
-<<div id="token_value" style="text-align: center; margin-top: 20px;">
+<div id="token_value" style="text-align: center; margin-top: 20px;">
     access_token：${access_token}
 </div>
 
