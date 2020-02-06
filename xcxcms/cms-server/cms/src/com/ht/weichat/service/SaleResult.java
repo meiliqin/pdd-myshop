@@ -28,4 +28,7 @@ public class SaleResult {
         pay_amount=0.0;
         total_order_count=0;
     }
+
+    public SaleResult() {
+    }
 }

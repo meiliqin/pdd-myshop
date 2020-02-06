@@ -1,8 +1,6 @@
 package com.ht.weichat.service;
 
-import com.ht.weichat.pojo.TbType;
-
-import java.util.List;
+import com.ht.weichat.pojo.TbDateSales;
 
 /**
  * Created by  on 17/1/7.
@@ -16,5 +14,6 @@ public interface SalesService {
     public String unsend();
     public String week();
 
+    void save(TbDateSales tbDateSales) throws Exception;
 
 }

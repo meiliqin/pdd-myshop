@@ -82,9 +82,9 @@ public class PageController {
     @RequestMapping("/query_week_sales")
     public String showWeekSales(Model model) {
         String result=salesService.week();
-        model.addAttribute("sales", result);
+        model.addAttribute("week_sales", result);
 
-        return "login";
+        return "query_week_sales";
     }
 
 

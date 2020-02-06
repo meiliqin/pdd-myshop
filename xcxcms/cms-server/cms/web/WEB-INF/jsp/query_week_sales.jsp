@@ -14,7 +14,7 @@
 <body>
 
 <div id="sales_result" style="text-align: center; margin-top: 20px;">
-    同步拉取销量，保存数据库，暂先存为文件
+    一周销量：${week_sales}
 </div>
 
 </body>

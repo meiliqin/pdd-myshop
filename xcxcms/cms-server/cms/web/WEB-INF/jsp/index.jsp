@@ -23,18 +23,37 @@
         <td>
             <a href="${pageContext.request.contextPath}/query_week_sales">一周销量</a>
         </td>
+    </tr>
+</table>
+
+<br>
+
+<table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
+    <tr>
         <td>
             <a href="${pageContext.request.contextPath}/refresh_access_token">刷新token</a>
         </td>
+    </tr>
+</table>
+<div id="token_value" style="text-align: center; margin-top: 20px;">
+    access_token：${access_token}
+</div>
+<br>
+<table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
+    <tr>
+        <td>
+            <a href="${pageContext.request.contextPath}/cms">库存管理</a>
+        </td>
+    </tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
+    <tr>
         <td>
             <a href="${pageContext.request.contextPath}/cms">一个参考示例cms</a>
         </td>
     </tr>
 </table>
-
-<div id="token_value" style="text-align: center; margin-top: 20px;">
-    access_token：${access_token}
-</div>
 
 
 </body>
