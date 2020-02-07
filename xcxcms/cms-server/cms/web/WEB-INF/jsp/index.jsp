@@ -42,7 +42,7 @@
 <table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
     <tr>
         <td>
-            <a href="${pageContext.request.contextPath}/cms">库存管理</a>
+            <a href="${pageContext.request.contextPath}/stock">库存管理</a>
         </td>
     </tr>
 </table>

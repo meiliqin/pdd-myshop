@@ -6,9 +6,9 @@ import java.util.Comparator;
  * created by n3207
  * on 2020/1/2
  */
-public class GoodComparator implements Comparator<GoodItem> {
+public class GoodComparator implements Comparator<SaleResult.GoodItem> {
     @Override
-    public int compare(GoodItem goodItem1, GoodItem goodItem2) {
+    public int compare(SaleResult.GoodItem goodItem1, SaleResult.GoodItem goodItem2) {
         int diff = goodItem1.sale_count - goodItem2.sale_count;
         if (diff > 0) {
             return -1;

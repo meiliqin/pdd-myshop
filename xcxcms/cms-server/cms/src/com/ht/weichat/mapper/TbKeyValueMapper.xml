@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ht.weichat.mapper.TbKeyValueMapper">
+    <resultMap id="BaseResultMap" type="com.ht.weichat.pojo.TbKeyValue">
+        <id column="infoKey" property="infoKey" jdbcType="VARCHAR"/>
+        <result column="infoValue" property="infoValue" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+    infoKey,  infoValue
+  </sql>
+
+
+    <insert id="insert" parameterType="com.ht.weichat.pojo.TbKeyValue">
+    insert into tb_appinfo (infoKey,infoValue)
+    values (#{infoKey,jdbcType=VARCHAR}, #{infoValue ,jdbcType=VARCHAR})
+  </insert>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from tb_appinfo
+        where infoKey = #{infoKey,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateByPrimaryKey" parameterType="com.ht.weichat.pojo.TbKeyValue" >
+    update tb_appinfo
+    set infoValue = #{infoValue,jdbcType=VARCHAR}
+    where infoKey = #{infoKey,jdbcType=VARCHAR}
+  </update>
+</mapper>

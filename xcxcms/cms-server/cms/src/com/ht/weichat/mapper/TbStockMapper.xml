@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ht.weichat.mapper.TbStockMapper">
+    <resultMap id="BaseResultMap" type="com.ht.weichat.pojo.TbStock">
+        <id column="goodId" property="goodId" jdbcType="VARCHAR"/>
+        <id column="skuId" property="skuId" jdbcType="VARCHAR"/>
+        <result column="goodName" property="goodName" jdbcType="VARCHAR"/>
+        <result column="thumbUrl" property="thumbUrl" jdbcType="VARCHAR"/>
+        <result column="skuSpec" property="skuSpec" jdbcType="VARCHAR"/>
+        <result column="skuUrl" property="skuUrl" jdbcType="VARCHAR"/>
+        <result column="stock" property="stock" jdbcType="INTEGER"/>
+        <result column="updatTime" property="updattime" jdbcType="TIMESTAMP"/>
+        <result column="creatTime" property="creattime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="com.ht.weichat.pojo.TbStock">
+    insert into tb_stock (goodId,skuId,
+    goodName,thumbUrl,skuSpec,skuUrl,stock
+       updatTime, creatTime)
+    values (#{goodId,jdbcType=VARCHAR}, #{skuId,jdbcType=VARCHAR},
+     #{goodName,jdbcType=VARCHAR},  #{thumbUrl,jdbcType=VARCHAR},
+          #{skuSpec,jdbcType=VARCHAR},  #{skuUrl,jdbcType=VARCHAR},
+          #{stock,jdbcType=INTEGER},
+      #{updattime,jdbcType=TIMESTAMP}, #{creattime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+</mapper>

@@ -1,8 +1,12 @@
 package com.ht.weichat.service.impl;
 
 import com.ht.weichat.mapper.TbDateSalesMapper;
+import com.ht.weichat.mapper.TbKeyValueMapper;
 import com.ht.weichat.pojo.TbDateSales;
+import com.ht.weichat.pojo.TbKeyValue;
 import com.ht.weichat.service.*;
+import com.ht.weichat.utils.ConstantPool;
+import com.ht.weichat.utils.GlobalUtils;
 import com.pdd.pop.sdk.common.util.JsonUtil;
 import com.pdd.pop.sdk.http.PopAccessTokenClient;
 import com.pdd.pop.sdk.http.PopClient;
@@ -23,24 +27,25 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.ht.weichat.utils.ConstantPool.redirectUri;
+import static com.ht.weichat.utils.ConstantPool.clientId;
+import static com.ht.weichat.utils.ConstantPool.clientSecret;
+
+
 @Service
 public class SalesServiceImpl implements SalesService {
-    public static final String clientId = "864a62d925204fa29d5a2d2b22d8c67e";
-    public static final String clientSecret = "f821108d75c0dc7951e94cdd27103a28d19c7839";
-    public static final String redirectUri = "https://mms.pinduoduo.com";
     public static final int pageSize = 100;
     public static final String daytimeStart = "00:00:00";
     public static final String daytimeEnd = "23:59:59";
     //    public static String accessToken = "14bc0edea9da4da2bc47ebb7f0aeb6c8f9052bb0";
-    //todo
-    public static String accessToken = "e7be8adf678b4ea690938631f5a11264e11c62b0";
-    //todo
-    public static Date syncDate = null;
-    public static final String saleDir = "/users/meiliqin/project/pdd-myshop/xcxcms/sales/";
+//    public static final String saleDir = "/users/meiliqin/project/pdd-myshop/xcxcms/sales/";
     private Logger logger = Logger.getLogger("SalesServiceImpl");
 
     @Autowired
     private TbDateSalesMapper tbDateSalesMapper;
+
+    @Autowired
+    private TbKeyValueMapper tbKeyValueMapper;
 
     @Override
     public String getCodeUrl() {
@@ -56,7 +61,12 @@ public class SalesServiceImpl implements SalesService {
 
     @Override
     public String getCurAccessToken() {
-        return accessToken;
+        if(GlobalUtils.accessToken==null){
+            TbKeyValue tbKeyValue=tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_AccessToken);
+            GlobalUtils.accessToken=tbKeyValue.getInfoValue();
+            logger.info("获取到数据库的值accessToken："+GlobalUtils.accessToken);
+        }
+        return GlobalUtils.accessToken;
     }
 
     @Override
@@ -67,11 +77,23 @@ public class SalesServiceImpl implements SalesService {
                     clientId,
                     clientSecret);
             AccessTokenResponse accessTokenResponse = client.generate(code);
-            accessToken = accessTokenResponse.getAccessToken();
+            String accessToken = accessTokenResponse.getAccessToken();
             logger.info("accesstoken:" + accessToken);
+            TbKeyValue keyValue=new TbKeyValue();
+            keyValue.setInfoKey(ConstantPool.Key_AccessToken);
+            keyValue.setInfoValue(accessToken);
+
+           if (null==tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_AccessToken)){
+               tbKeyValueMapper.insert(keyValue);
+               logger.info("accesstoken已保存数据库");
+           }else {
+               tbKeyValueMapper.updateByPrimaryKey(keyValue);
+               logger.info("accesstoken已更新数据库");
+           }
+
+            GlobalUtils.accessToken=accessToken;
             return accessToken;
         } catch (Exception e) {
-
             e.printStackTrace();
         }
 
@@ -88,7 +110,7 @@ public class SalesServiceImpl implements SalesService {
         long endTime = today.getTime() / 1000L;
         //最多统计30天未发货
         while (dayIndex <= 30) {
-            PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1, startTime, endTime, 1, accessToken);
+            PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1, startTime, endTime, 1);
             if (firstResponse == null) {
                 logger.info("获取数据失败");
                 break;
@@ -112,7 +134,7 @@ public class SalesServiceImpl implements SalesService {
             if (totalCount > firstOrderList.size()) {
                 int page = totalCount % pageSize > 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
                 for (int i = 2; i <= page; i++) {
-                    PddOrderListGetResponse response = getOrderListGetResponse(client, 1, startTime, endTime, i, accessToken);
+                    PddOrderListGetResponse response = getOrderListGetResponse(client, 1, startTime, endTime, i);
                     List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> orderList = response.getOrderListGetResponse().getOrderList();
                     calOrderList(orderList, saleResult);
                 }
@@ -123,7 +145,7 @@ public class SalesServiceImpl implements SalesService {
         }
 
         Collections.sort(saleResult.daySale, new GoodComparator());
-        for (GoodItem goodItem : saleResult.daySale) {
+        for (SaleResult.GoodItem goodItem : saleResult.daySale) {
             Collections.sort(goodItem.sku_list, new SkuComparator());
         }
 
@@ -147,10 +169,10 @@ public class SalesServiceImpl implements SalesService {
             }
             weekSalesResult.total_order_count+=daySaleResult.total_order_count;
             weekSalesResult.pay_amount+=daySaleResult.pay_amount;
-            for(GoodItem dayGoodItem:daySaleResult.daySale){
+            for(SaleResult.GoodItem dayGoodItem:daySaleResult.daySale){
                 int findGoodIndex = findGoodItemInList(dayGoodItem.goods_id, weekSalesResult.daySale);
                 if(findGoodIndex<0){
-                    GoodItem weekGoodItem = new GoodItem();
+                    SaleResult.GoodItem weekGoodItem = new SaleResult.GoodItem();
                     weekGoodItem.goods_id = dayGoodItem.goods_id;
                     weekGoodItem.goods_name = dayGoodItem.goods_name;
                     weekGoodItem.pay_amount += dayGoodItem.pay_amount;
@@ -158,10 +180,10 @@ public class SalesServiceImpl implements SalesService {
                     weekGoodItem.sku_list.addAll(dayGoodItem.sku_list);
                     weekSalesResult.daySale.add(weekGoodItem);
                 }else {
-                    GoodItem weekGoodItem=weekSalesResult.daySale.get(findGoodIndex);
+                    SaleResult.GoodItem weekGoodItem=weekSalesResult.daySale.get(findGoodIndex);
                     weekGoodItem.pay_amount += dayGoodItem.pay_amount;
                     weekGoodItem.sale_count += dayGoodItem.sale_count;
-                    for(SkuItem skuItem:dayGoodItem.sku_list){
+                    for(SaleResult.SkuItem skuItem:dayGoodItem.sku_list){
                         int findSkuIndex = findSkuItemInList(skuItem.sku_id, weekGoodItem.sku_list);
                         if(findSkuIndex<0){
                             weekGoodItem.sku_list.add(skuItem);
@@ -177,22 +199,22 @@ public class SalesServiceImpl implements SalesService {
         return result;
     }
 
-    private void writeDateToFile(String filename, String sales) {
-        FileWriter writer;
-        String fileName = saleDir + filename + ".txt";
-        try {
-            writer = new FileWriter(fileName);
-            writer.write("");
-            writer.write(sales);
-            writer.flush();
-            writer.close();
-            logger.info("写入到文件：" + fileName);
-
-        } catch (IOException e) {
-            logger.info("写入文件出错：" + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+//    private void writeDateToFile(String filename, String sales) {
+//        FileWriter writer;
+//        String fileName = saleDir + filename + ".txt";
+//        try {
+//            writer = new FileWriter(fileName);
+//            writer.write("");
+//            writer.write(sales);
+//            writer.flush();
+//            writer.close();
+//            logger.info("写入到文件：" + fileName);
+//
+//        } catch (IOException e) {
+//            logger.info("写入文件出错：" + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public String yesterday() {
@@ -217,7 +239,7 @@ public class SalesServiceImpl implements SalesService {
 
         PopClient client = new PopHttpClient(clientId, clientSecret);
 
-        PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, date, 1, accessToken);
+        PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, date, 1);
         if (firstResponse == null) {
             logger.info("获取数据失败");
             return null;
@@ -244,7 +266,7 @@ public class SalesServiceImpl implements SalesService {
             int page = totalCount % pageSize > 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
             //System.out.println("剩余数据:" + (page - 1) + "页...");
             for (int i = 2; i <= page; i++) {
-                PddOrderListGetResponse response = getOrderListGetResponse(client, date, i, accessToken);
+                PddOrderListGetResponse response = getOrderListGetResponse(client, date, i);
                 List<PddOrderListGetResponse.OrderListGetResponseOrderListItem> orderList = response.getOrderListGetResponse().getOrderList();
                 //System.out.println("正在统计第" + i + "页订单:" + orderList.size() + "条...");
                 calOrderList(orderList, saleResult);
@@ -252,7 +274,7 @@ public class SalesServiceImpl implements SalesService {
         }
 
         Collections.sort(saleResult.daySale, new GoodComparator());
-        for (GoodItem goodItem : saleResult.daySale) {
+        for (SaleResult.GoodItem goodItem : saleResult.daySale) {
             Collections.sort(goodItem.sku_list, new SkuComparator());
         }
         logger.info(date + "销量统计完成");
@@ -272,12 +294,12 @@ public class SalesServiceImpl implements SalesService {
 
     }
 
-    private PddOrderListGetResponse getOrderListGetResponse(PopClient client, String date, int page, String accessToken) {
+    private PddOrderListGetResponse getOrderListGetResponse(PopClient client, String date, int page) {
         // System.out.println("正在获取第" + page + "页订单...");
         try {
             long startTime = dateToStamp(date + " " + daytimeStart) / 1000L;
             long endTime = dateToStamp(date + " " + daytimeEnd) / 1000L;
-            return getOrderListGetResponse(client, 5, startTime, endTime, page, accessToken);
+            return getOrderListGetResponse(client, 5, startTime, endTime, page);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -285,7 +307,7 @@ public class SalesServiceImpl implements SalesService {
     }
 
 
-    private PddOrderListGetResponse getOrderListGetResponse(PopClient client, int orderStatus, long startTime, long endTime, int page, String accessToken) {
+    private PddOrderListGetResponse getOrderListGetResponse(PopClient client, int orderStatus, long startTime, long endTime, int page) {
         // System.out.println("正在获取第" + page + "页订单...");
         try {
             PddOrderListGetRequest request = new PddOrderListGetRequest();
@@ -295,7 +317,7 @@ public class SalesServiceImpl implements SalesService {
             request.setEndConfirmAt(endTime);
             request.setPage(page);
             request.setPageSize(pageSize);
-            PddOrderListGetResponse response = client.syncInvoke(request, accessToken);
+            PddOrderListGetResponse response = client.syncInvoke(request, getCurAccessToken());
             // System.out.println(JsonUtil.transferToJson(response));
             return response;
         } catch (Exception e) {
@@ -310,30 +332,30 @@ public class SalesServiceImpl implements SalesService {
             for (PddOrderListGetResponse.OrderListGetResponseOrderListItemItemListItem item : itemList) {
                 int findGoodIndex = findGoodItemInList(item.getGoodsId(), saleResult.daySale);
                 if (findGoodIndex == -1) {
-                    GoodItem goodItem = new GoodItem();
+                    SaleResult.GoodItem goodItem = new SaleResult.GoodItem();
                     goodItem.goods_id = item.getGoodsId();
                     goodItem.goods_name = item.getGoodsName();
                     goodItem.pay_amount += orderListItem.getPayAmount();
                     goodItem.sale_count += item.getGoodsCount();
-                    SkuItem skuItem = new SkuItem();
+                    SaleResult.SkuItem skuItem = new SaleResult.SkuItem();
                     skuItem.sku_id = item.getSkuId();
                     skuItem.spec = item.getGoodsSpec();
                     skuItem.sale_count += item.getGoodsCount();
                     goodItem.sku_list.add(skuItem);
                     saleResult.daySale.add(goodItem);
                 } else {
-                    GoodItem goodItem = saleResult.daySale.get(findGoodIndex);
+                    SaleResult.GoodItem goodItem = saleResult.daySale.get(findGoodIndex);
                     goodItem.pay_amount += orderListItem.getPayAmount();
                     goodItem.sale_count += item.getGoodsCount();
                     int findSkuIndex = findSkuItemInList(item.getSkuId(), goodItem.sku_list);
                     if (findSkuIndex == -1) {
-                        SkuItem skuItem = new SkuItem();
+                        SaleResult.SkuItem skuItem = new SaleResult.SkuItem();
                         skuItem.sku_id = item.getSkuId();
                         skuItem.spec = item.getGoodsSpec();
                         skuItem.sale_count += item.getGoodsCount();
                         goodItem.sku_list.add(skuItem);
                     } else {
-                        SkuItem skuItem = goodItem.sku_list.get(findSkuIndex);
+                        SaleResult.SkuItem skuItem = goodItem.sku_list.get(findSkuIndex);
                         skuItem.sale_count += item.getGoodsCount();
                     }
                 }
@@ -343,9 +365,9 @@ public class SalesServiceImpl implements SalesService {
         }
     }
 
-    public int findGoodItemInList(String goodId, List<GoodItem> goodItemList) {
+    public int findGoodItemInList(String goodId, List<SaleResult.GoodItem> goodItemList) {
         for (int i = 0; i < goodItemList.size(); i++) {
-            GoodItem goodItem = goodItemList.get(i);
+            SaleResult.GoodItem goodItem = goodItemList.get(i);
             if (goodId.equals(goodItem.goods_id)) {
                 return i;
             }
@@ -353,9 +375,9 @@ public class SalesServiceImpl implements SalesService {
         return -1;
     }
 
-    public int findSkuItemInList(String skuId, List<SkuItem> skuItemList) {
+    public int findSkuItemInList(String skuId, List<SaleResult.SkuItem> skuItemList) {
         for (int i = 0; i < skuItemList.size(); i++) {
-            SkuItem skuItem = skuItemList.get(i);
+            SaleResult.SkuItem skuItem = skuItemList.get(i);
             if (skuId.equals(skuItem.sku_id)) {
                 return i;
             }

@@ -3,10 +3,9 @@ package com.ht.weichat.controller.web;
 import com.ht.weichat.pojo.TbAccount;
 import com.ht.weichat.pojo.TbArticle;
 import com.ht.weichat.pojo.TbType;
-import com.ht.weichat.service.ArticleService;
-import com.ht.weichat.service.SalesService;
-import com.ht.weichat.service.TypeService;
+import com.ht.weichat.service.*;
 import com.ht.weichat.utils.ConstantPool;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +21,7 @@ import java.util.List;
  */
 @Controller
 public class PageController {
+    private Logger logger = Logger.getLogger("PageController");
 
     @Autowired
     private TypeService typeService;
@@ -32,6 +32,9 @@ public class PageController {
     @Autowired
     private SalesService salesService;
 
+    @Autowired
+    private StockService stockService;
+
     @RequestMapping("/")
     public String showIndex(Model model) {
         return "index";
@@ -40,7 +43,9 @@ public class PageController {
     @RequestMapping("/index")
     public String showIndex(Model model,
                             @RequestParam(defaultValue = "0") String token) {
-        model.addAttribute("access_token", "已刷新"+token);
+        logger.info("token:"+token);
+        String accessToken=salesService.getCurAccessToken();
+        model.addAttribute("access_token", "已刷新,其值为"+accessToken);
         return "index";
     }
 
@@ -87,6 +92,19 @@ public class PageController {
         return "query_week_sales";
     }
 
+    @RequestMapping("/stock")
+    public String showStock(Model model) {
+        StockResult stockResult=stockService.getGoodInfo();
+        if(stockResult!=null){
+            List<StockResult.GoodItem> goodStockList=stockResult.goodStockList;
+            model.addAttribute("goodStockList", goodStockList);
+            model.addAttribute("goodSize", goodStockList.size());
+        }
+
+
+
+        return "stock";
+    }
 
     @RequestMapping("/cms")
     public String showCms(Model model) {

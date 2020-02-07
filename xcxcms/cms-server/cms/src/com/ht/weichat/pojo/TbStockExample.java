@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TbSalesResultExample {
+public class TbStockExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TbSalesResultExample() {
+    public TbStockExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
