@@ -3,12 +3,22 @@ package com.ht.weichat.service;
 import com.ht.weichat.pojo.TbDateSales;
 import com.ht.weichat.pojo.TbStock;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * Created by  on 17/1/7.
  */
 public interface StockService {
 
 
-    void save(TbStock tbStock) throws Exception;
+    void insert(TbStock tbStock) throws Exception;
+    TbStock queryStock(String goodId, String skuId);
+
     StockResult getGoodInfo();
+    void update(String goodId, String skuId, int quantity);
+    void updateStockList(List<StockLabel> stockLabelList);
+
+
+
 }

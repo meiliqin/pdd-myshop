@@ -19,6 +19,14 @@ public class StockResult {
 
     }
 
+    public List<GoodItem> getGoodStockList() {
+        return goodStockList;
+    }
+
+    public void setGoodStockList(List<GoodItem> goodStockList) {
+        this.goodStockList = goodStockList;
+    }
+
     public static class GoodItem {
         @JsonProperty("thumb_url")
         public String thumb_url;

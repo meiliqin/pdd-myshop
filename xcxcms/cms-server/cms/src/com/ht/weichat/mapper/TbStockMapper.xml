@@ -9,20 +9,71 @@
         <result column="skuSpec" property="skuSpec" jdbcType="VARCHAR"/>
         <result column="skuUrl" property="skuUrl" jdbcType="VARCHAR"/>
         <result column="stock" property="stock" jdbcType="INTEGER"/>
-        <result column="updatTime" property="updattime" jdbcType="TIMESTAMP"/>
-        <result column="creatTime" property="creattime" jdbcType="TIMESTAMP"/>
+        <result column="updatTime" property="updatTime" jdbcType="TIMESTAMP"/>
+        <result column="creatTime" property="creatTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-
+    <sql id="Base_Column_List">
+    goodId, skuId,goodName,thumbUrl,skuSpec,skuUrl,stock,updatTime,creatTime
+  </sql>
     <insert id="insert" parameterType="com.ht.weichat.pojo.TbStock">
     insert into tb_stock (goodId,skuId,
-    goodName,thumbUrl,skuSpec,skuUrl,stock
+    goodName,thumbUrl,skuSpec,skuUrl,stock,
        updatTime, creatTime)
     values (#{goodId,jdbcType=VARCHAR}, #{skuId,jdbcType=VARCHAR},
-     #{goodName,jdbcType=VARCHAR},  #{thumbUrl,jdbcType=VARCHAR},
+     #{goodName,jdbcType=VARCHAR}, #{thumbUrl,jdbcType=VARCHAR},
           #{skuSpec,jdbcType=VARCHAR},  #{skuUrl,jdbcType=VARCHAR},
           #{stock,jdbcType=INTEGER},
-      #{updattime,jdbcType=TIMESTAMP}, #{creattime,jdbcType=TIMESTAMP}
+      #{updatTime,jdbcType=TIMESTAMP}, #{creatTime,jdbcType=TIMESTAMP}
       )
   </insert>
+
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_stock
+        where skuId = #{skuId}
+    </select>
+
+    <update id="updateByPrimaryKey" parameterType="com.ht.weichat.pojo.TbStock">
+    update tb_stock
+    set
+    goodId = #{goodId,jdbcType=VARCHAR},
+    goodName = #{goodName,jdbcType=VARCHAR},
+      thumbUrl = #{thumbUrl,jdbcType=VARCHAR},
+      skuSpec = #{skuSpec,jdbcType=VARCHAR},
+      skuUrl = #{skuUrl,jdbcType=VARCHAR},
+      stock = #{stock,jdbcType=INTEGER},
+      updatTime = #{updattime,jdbcType=TIMESTAMP},
+      creatTime = #{creattime,jdbcType=TIMESTAMP}
+    where skuId = #{skuId,jdbcType=VARCHAR}
+  </update>
+
+    <update id="updateStockQuantity" parameterType="map">
+    update tb_stock
+    set stock = #{quantity}
+    where goodId= #{goodId} and skuId = #{skuId}
+  </update>
+
+
+    <update id="updateStockQuantityList" parameterType="java.util.List">
+        update tb_stock
+        <trim prefix="set" suffixOverrides=",">
+
+            <trim prefix="stock =case" suffix="end,">
+                <foreach item="item" collection="list">
+                    when tb_stock.skuId = (#{item.skuId})
+                    then #{item.stock}
+                </foreach>
+            </trim>
+
+        </trim>
+        where
+        <foreach item="item" collection="list" separator="or">
+            (tb_stock.skuId = (#{item.skuId}))
+        </foreach>
+
+    </update>
+
 </mapper>

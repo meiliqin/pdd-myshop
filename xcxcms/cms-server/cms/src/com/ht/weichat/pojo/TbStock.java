@@ -17,9 +17,10 @@ public class TbStock {
 
     private int stock;
 
-    private Date updattime;
+    private Date updatTime;
 
-    private Date creattime;
+
+    private Date creatTime;
 
     public String getGoodId() {
         return goodId;
@@ -77,20 +78,20 @@ public class TbStock {
         this.stock = stock;
     }
 
-    public Date getUpdattime() {
-        return updattime;
+    public Date getUpdatTime() {
+        return updatTime;
     }
 
-    public void setUpdattime(Date updattime) {
-        this.updattime = updattime;
+    public void setUpdatTime(Date updattime) {
+        this.updatTime = updattime;
     }
 
-    public Date getCreattime() {
-        return creattime;
+    public Date getCreatTime() {
+        return creatTime;
     }
 
-    public void setCreattime(Date creattime) {
-        this.creattime = creattime;
+    public void setCreatTime(Date creattime) {
+        this.creatTime = creattime;
     }
 
 

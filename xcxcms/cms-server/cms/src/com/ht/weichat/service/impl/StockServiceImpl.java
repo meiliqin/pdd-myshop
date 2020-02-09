@@ -5,6 +5,7 @@ import com.ht.weichat.mapper.TbKeyValueMapper;
 import com.ht.weichat.mapper.TbStockMapper;
 import com.ht.weichat.pojo.TbKeyValue;
 import com.ht.weichat.pojo.TbStock;
+import com.ht.weichat.service.StockLabel;
 import com.ht.weichat.service.StockResult;
 import com.ht.weichat.service.StockService;
 import com.ht.weichat.utils.GlobalUtils;
@@ -20,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 
-
 @Service
 public class StockServiceImpl implements StockService {
     @Autowired
@@ -33,20 +33,40 @@ public class StockServiceImpl implements StockService {
     private TbKeyValueMapper tbKeyValueMapper;
 
     @Override
-    public void save(TbStock tbStock) throws Exception {
+    public void insert(TbStock tbStock) throws Exception {
         Date currentDate = new Date();
-
-        tbStock.setCreattime(currentDate);
-        tbStock.setUpdattime(currentDate);
+        //tbStock.setSkuUrl(null);
+        tbStock.setCreatTime(currentDate);
+        tbStock.setUpdatTime(currentDate);
 
         tbStockMapper.insert(tbStock);
+
+
+    }
+
+    @Override
+    public TbStock queryStock(String goodId, String skuId) {
+        return tbStockMapper.selectByPrimaryKey(goodId, skuId);
+    }
+
+    @Override
+    public void update(String goodId, String skuId, int quantity) {
+//        Date currentDate = new Date();
+//        tbStock.setCreattime(currentDate);
+//        tbStock.setUpdattime(currentDate);
+        tbStockMapper.updateStockQuantity(goodId, skuId, quantity);
+    }
+
+    @Override
+    public void updateStockList(List<StockLabel> stockLabelList) {
+        tbStockMapper.updateStockQuantityList(stockLabelList);
     }
 
     public String getCurAccessToken() {
-        if(GlobalUtils.accessToken==null){
-            TbKeyValue tbKeyValue=tbKeyValueMapper.selectByPrimaryKey("accessToken");
-            GlobalUtils.accessToken=tbKeyValue.getInfoValue();
-            logger.info("获取到数据库的值accessToken："+GlobalUtils.accessToken);
+        if (GlobalUtils.accessToken == null) {
+            TbKeyValue tbKeyValue = tbKeyValueMapper.selectByPrimaryKey("accessToken");
+            GlobalUtils.accessToken = tbKeyValue.getInfoValue();
+            logger.info("获取到数据库的值accessToken：" + GlobalUtils.accessToken);
         }
         return GlobalUtils.accessToken;
     }
@@ -76,7 +96,7 @@ public class StockServiceImpl implements StockService {
                 goodItem.good_stock_quantity = 0;
                 stockResult.goodStockList.add(goodItem);
             }
-            logger.info("stock:"+stockResult.goodStockList.size());
+            logger.info("stock:" + stockResult.goodStockList.size());
             return stockResult;
 
 //            for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItem goodsListItem : goodsList) {
@@ -94,7 +114,7 @@ public class StockServiceImpl implements StockService {
 //            }
 
         } catch (Exception e) {
-logger.info(e.getMessage());
+            logger.info(e.getMessage());
         }
         return null;
     }
