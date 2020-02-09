@@ -102,36 +102,12 @@ public class PageController {
     @RequestMapping("/stock")
     public String showStock(Model model) {
         logger.info("正在执行showStock");
-        StockResult stockResult = stockService.getGoodInfo();
-        //todo 这个表中可去掉除 goodid skuid stock之外的无关字段
-        //todo 应改为批量查询 会快很多
-
-        if (stockResult != null) {
-            List<StockResult.GoodItem> goodStockList=stockResult.goodStockList;
-            try {
-                for(StockResult.GoodItem goodItem:goodStockList){
-                    for (StockResult.SkuItem skuItem:goodItem.sku_list){
-                        TbStock tbStock= stockService.queryStock(String.valueOf(goodItem.goods_id),String.valueOf(skuItem.sku_id));
-                        if(tbStock==null){
-                            tbStock=new TbStock();
-                            tbStock.setGoodId(String.valueOf(goodItem.goods_id));
-                            tbStock.setSkuId(String.valueOf(skuItem.sku_id));
-                            tbStock.setStock(0);
-                            stockService.insert(tbStock);
-                        }else {
-                            logger.info("查询到库存："+tbStock.getStock());
-                        }
-                        skuItem.setSku_stock_quantity(tbStock.getStock());
-                    }
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+        StockResult stockResult = stockService.queryStockResult();
 
 //            model.addAttribute("goodStockList", goodStockList);
 //            model.addAttribute("goodSize", goodStockList.size());
-            model.addAttribute("stockResult", stockResult);
-        }
+        model.addAttribute("stockResult", stockResult);
+
         return "stock";
     }
 
@@ -149,18 +125,18 @@ public class PageController {
         String jsonData = request.getParameter("stockData");
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
-            List<StockLabel>stockLabelList=new ArrayList<>();
+            List<TbStock> tbStockList = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
-                StockLabel stockLabel=new StockLabel();
+                TbStock tbStock = new TbStock();
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                stockLabel.setGoodId(jsonObject.getString("goodId"));
-                stockLabel.setSkuId(jsonObject.getString("skuId"));
-                stockLabel.setStock(jsonObject.getInt("stock_quantity"));
-                stockLabelList.add(stockLabel);
-                logger.info("skuId:"+stockLabel.getSkuId()+"quantity:"+stockLabel.getStock());
+                tbStock.setGoodId(jsonObject.getString("goodId"));
+                tbStock.setSkuId(jsonObject.getString("skuId"));
+                tbStock.setStock(jsonObject.getInt("stock_quantity"));
+                tbStockList.add(tbStock);
+                logger.info("skuId:" + tbStock.getSkuId() + "quantity:" + tbStock.getStock());
 //                stockService.update(goodId,skuId,quantity);
             }
-            stockService.updateStockList(stockLabelList);
+            stockService.updateStockList(tbStockList);
             logger.info("已经保存数据");
 
         } catch (JSONException e) {
