@@ -9,6 +9,7 @@ public class ConstantPool {
     public static final String redirectUri = "https://mms.pinduoduo.com";
 
     public static final String Key_AccessToken = "accessToken";
+    public static final String Key_SyncSalesDate = "syncSalesDate";
 
     //    public static final String IP = "http://118.89.227.195:8080";
     public static final String IP = "https://www.chengzhipcx.xyz/cms";

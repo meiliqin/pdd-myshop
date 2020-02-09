@@ -30,6 +30,7 @@ import java.util.List;
 import static com.ht.weichat.utils.ConstantPool.redirectUri;
 import static com.ht.weichat.utils.ConstantPool.clientId;
 import static com.ht.weichat.utils.ConstantPool.clientSecret;
+import static com.ht.weichat.utils.GlobalUtils.getDateBefore;
 
 
 @Service
@@ -234,6 +235,7 @@ public class SalesServiceImpl implements SalesService {
     }
 
 
+    @Override
     public SaleResult getDateSales(String date) {
         SaleResult saleResult = new SaleResult(date, "日销量数据");
 
@@ -403,19 +405,5 @@ public class SalesServiceImpl implements SalesService {
         tbDateSalesMapper.insert(tbDateSales);
     }
 
-    /**
-     * 获得今天的前i天,今天 i=0,昨天 i=1，前天 i=2
-     *
-     * @param i
-     * @return
-     * @throws Exception
-     */
-    public static String getDateBefore(int i) {
-        Date today = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - i);
-        String dayBefore = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-        return dayBefore;
-    }
+
 }

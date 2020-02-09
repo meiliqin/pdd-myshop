@@ -1,21 +1,31 @@
 package com.ht.weichat.service.impl;
 
+import com.ht.weichat.mapper.TbDateSalesMapper;
 import com.ht.weichat.mapper.TbKeyValueMapper;
 import com.ht.weichat.mapper.TbStockMapper;
+import com.ht.weichat.pojo.TbDateSales;
 import com.ht.weichat.pojo.TbKeyValue;
 import com.ht.weichat.pojo.TbStock;
-import com.ht.weichat.service.StockResult;
-import com.ht.weichat.service.StockService;
+import com.ht.weichat.service.*;
+import com.ht.weichat.utils.ConstantPool;
 import com.ht.weichat.utils.GlobalUtils;
+import com.pdd.pop.sdk.common.util.JsonUtil;
 import com.pdd.pop.sdk.http.PopClient;
 import com.pdd.pop.sdk.http.PopHttpClient;
 import com.pdd.pop.sdk.http.api.request.PddGoodsListGetRequest;
 import com.pdd.pop.sdk.http.api.response.PddGoodsListGetResponse;
+import com.pdd.pop.sdk.http.api.response.PddOrderListGetResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.ht.weichat.utils.ConstantPool.clientId;
+import static com.ht.weichat.utils.ConstantPool.clientSecret;
+import static com.ht.weichat.utils.GlobalUtils.getDateBefore;
 
 
 @Service
@@ -28,6 +38,12 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private TbKeyValueMapper tbKeyValueMapper;
+
+    @Autowired
+    private TbDateSalesMapper tbDateSalesMapper;
+
+    @Autowired
+    private SalesService salesService;
 
     @Override
     public void insert(TbStock tbStock) throws Exception {
@@ -88,23 +104,25 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public TbStock queryStock(String goodId, String skuId) {
-        return tbStockMapper.selectByPrimaryKey(goodId, skuId);
-    }
+    public void saveStock(List<TbStock> tbStockList) {
+        updateStockList(tbStockList);
+        String yesterdayDate = getDateBefore(1);
+        TbKeyValue keyValue = new TbKeyValue();
+        keyValue.setInfoKey(ConstantPool.Key_SyncSalesDate);
+        keyValue.setInfoValue(yesterdayDate);
+        if (null == tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_SyncSalesDate)) {
+            tbKeyValueMapper.insert(keyValue);
+        } else {
+            tbKeyValueMapper.updateByPrimaryKey(keyValue);
+        }
 
+    }
 
     @Override
     public List<TbStock> queryStockList(List<String> skuIdList) {
         return tbStockMapper.selectStocksByPrimaryKey(skuIdList);
     }
 
-    @Override
-    public void update(String goodId, String skuId, int quantity) {
-//        Date currentDate = new Date();
-//        tbStock.setCreattime(currentDate);
-//        tbStock.setUpdattime(currentDate);
-        tbStockMapper.updateStockQuantity(goodId, skuId, quantity);
-    }
 
     @Override
     public void updateStockList(List<TbStock> tbStockList) {
@@ -113,7 +131,7 @@ public class StockServiceImpl implements StockService {
 
     public String getCurAccessToken() {
         if (GlobalUtils.accessToken == null) {
-            TbKeyValue tbKeyValue = tbKeyValueMapper.selectByPrimaryKey("accessToken");
+            TbKeyValue tbKeyValue = tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_AccessToken);
             GlobalUtils.accessToken = tbKeyValue.getInfoValue();
             logger.info("获取到数据库的值accessToken：" + GlobalUtils.accessToken);
         }
@@ -170,6 +188,45 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public StockResult syncSales(StockResult stockResult) {
-        return null;
+        TbKeyValue tbKeyValue = tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_SyncSalesDate);
+        if(tbKeyValue==null){
+            return stockResult;
+        }
+        String lastDate = tbKeyValue.getInfoValue();
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date last = simpleDateFormat.parse(lastDate);//假设每天操作一次 上次保存的昨天2020-2-7
+            Date cur = new Date();//今天 2020-2-9
+            int daydiff = GlobalUtils.getDayDiffer(last, cur)-1;
+            for (int i = 1; i <=daydiff; i++) {
+                String date=getDateBefore(i);
+                logger.info("正在减去销量："+date);
+                TbDateSales dateSales = tbDateSalesMapper.selectByPrimaryKey(date);
+                SaleResult daySaleResult = null;
+                if (dateSales != null) {
+                    daySaleResult = JsonUtil.transferToObj(dateSales.getJsonSalesResult(), SaleResult.class);
+                } else {
+                    daySaleResult = salesService.getDateSales(date);
+                }
+                Map<String,Integer> salesMap=new HashMap<>();
+                for(SaleResult.GoodItem saleGoodItem:daySaleResult.daySale){
+                    for(SaleResult.SkuItem saleSkuItem:saleGoodItem.sku_list){
+                        salesMap.put(saleSkuItem.sku_id,saleSkuItem.sale_count);
+                    }
+                }
+                for(StockResult.GoodItem goodItem:stockResult.goodStockList){
+                   for(StockResult.SkuItem skuItem:goodItem.sku_list){
+                       int salesCount=salesMap.get(String.valueOf(skuItem.sku_id));
+                       skuItem.setSku_stock_quantity(skuItem.sku_stock_quantity-salesCount);
+                   }
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return stockResult;
     }
+
+
+
 }

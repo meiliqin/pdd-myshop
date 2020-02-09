@@ -15,5 +15,5 @@ public interface SalesService {
     public String week();
 
     void save(TbDateSales tbDateSales) throws Exception;
-
+    public SaleResult getDateSales(String date) ;
 }

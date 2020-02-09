@@ -102,11 +102,12 @@ public class PageController {
     @RequestMapping("/stock")
     public String showStock(Model model) {
         logger.info("正在执行showStock");
-        StockResult stockResult = stockService.queryStockResult();
+        StockResult stockResult1 = stockService.queryStockResult();
+        StockResult stockResult2=stockService.syncSales(stockResult1);
 
 //            model.addAttribute("goodStockList", goodStockList);
 //            model.addAttribute("goodSize", goodStockList.size());
-        model.addAttribute("stockResult", stockResult);
+        model.addAttribute("stockResult", stockResult2);
 
         return "stock";
     }
@@ -136,8 +137,8 @@ public class PageController {
                 logger.info("skuId:" + tbStock.getSkuId() + "quantity:" + tbStock.getStock());
 //                stockService.update(goodId,skuId,quantity);
             }
-            stockService.updateStockList(tbStockList);
-            logger.info("已经保存数据");
+            stockService.saveStock(tbStockList);
+            logger.info("已经批量更新数据库库存表");
 
         } catch (JSONException e) {
             e.printStackTrace();
