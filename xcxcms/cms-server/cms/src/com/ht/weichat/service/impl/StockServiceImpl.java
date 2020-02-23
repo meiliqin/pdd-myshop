@@ -214,10 +214,13 @@ public class StockServiceImpl implements StockService {
                         salesMap.put(saleSkuItem.sku_id,saleSkuItem.sale_count);
                     }
                 }
+                logger.info("salesMap size is："+salesMap.size());
                 for(StockResult.GoodItem goodItem:stockResult.goodStockList){
                    for(StockResult.SkuItem skuItem:goodItem.sku_list){
-                       int salesCount=salesMap.get(String.valueOf(skuItem.sku_id));
-                       skuItem.setSku_stock_quantity(skuItem.sku_stock_quantity-salesCount);
+                       Integer salesCount=salesMap.get(String.valueOf(skuItem.sku_id));
+                       if(salesCount!=null){
+                           skuItem.setSku_stock_quantity(skuItem.sku_stock_quantity-salesCount);
+                       }
                    }
                 }
             }
