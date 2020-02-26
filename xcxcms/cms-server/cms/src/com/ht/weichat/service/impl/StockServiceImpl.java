@@ -32,8 +32,6 @@ import static com.ht.weichat.utils.GlobalUtils.getDateBefore;
 public class StockServiceImpl implements StockService {
     @Autowired
     private TbStockMapper tbStockMapper;
-    public static final String clientId = "864a62d925204fa29d5a2d2b22d8c67e";
-    public static final String clientSecret = "f821108d75c0dc7951e94cdd27103a28d19c7839";
     private Logger logger = Logger.getLogger("StockServiceImpl");
 
     @Autowired
