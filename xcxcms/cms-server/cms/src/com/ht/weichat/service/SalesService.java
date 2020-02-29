@@ -7,7 +7,7 @@ import com.ht.weichat.pojo.TbDateSales;
  */
 public interface SalesService {
 
-    public String yesterday();
+    public SaleResult yesterday();
     public  String getCodeUrl();
     public String getAccessTokenFromCode(String code);
     public String getCurAccessToken();

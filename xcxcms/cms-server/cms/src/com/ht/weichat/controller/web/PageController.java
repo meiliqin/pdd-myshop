@@ -56,13 +56,9 @@ public class PageController {
 
     @RequestMapping("/query_yesterday_sales")
     public String showYesterdaySales(Model model) {
-        String result = salesService.yesterday();
-        if (result.contains("access_token已过期")) {
-            model.addAttribute("codeUrl", salesService.getCodeUrl());
-
-        }
-        model.addAttribute("yesterday_sales", result);
-
+        SaleResult result = salesService.yesterday();
+        model.addAttribute("saleResult", result);
+        model.addAttribute("yesterday_sales", result!=null?"昨日销量统计":"可能是access_token已过期,请刷新");
         return "query_yesterday_sales";
     }
 

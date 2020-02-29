@@ -218,7 +218,7 @@ public class SalesServiceImpl implements SalesService {
 //    }
 
     @Override
-    public String yesterday() {
+    public SaleResult yesterday() {
 //        Date today = new Date();
 //        Calendar calendar = Calendar.getInstance();
 //        calendar.setTime(today);
@@ -227,11 +227,7 @@ public class SalesServiceImpl implements SalesService {
 //                .append(calendar.get(Calendar.MONTH) + 1).append("-").append(calendar.get(Calendar.DAY_OF_MONTH)).toString();
         String date = getDateBefore(1);
         SaleResult saleResult = getDateSales(date);
-        if (saleResult != null) {
-            return JsonUtil.transferToJson(saleResult);
-        } else {
-            return "可能是access_token已过期,请刷新";
-        }
+        return saleResult;
     }
 
 
