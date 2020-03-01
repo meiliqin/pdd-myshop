@@ -338,6 +338,7 @@ public class SalesServiceImpl implements SalesService {
                     SaleResult.SkuItem skuItem = new SaleResult.SkuItem();
                     skuItem.sku_id = item.getSkuId();
                     skuItem.spec = item.getGoodsSpec();
+                    skuItem.img=item.getGoodsImg();
                     skuItem.sale_count += item.getGoodsCount();
                     goodItem.sku_list.add(skuItem);
                     saleResult.daySale.add(goodItem);
@@ -350,6 +351,7 @@ public class SalesServiceImpl implements SalesService {
                         SaleResult.SkuItem skuItem = new SaleResult.SkuItem();
                         skuItem.sku_id = item.getSkuId();
                         skuItem.spec = item.getGoodsSpec();
+                        skuItem.img=item.getGoodsImg();
                         skuItem.sale_count += item.getGoodsCount();
                         goodItem.sku_list.add(skuItem);
                     } else {

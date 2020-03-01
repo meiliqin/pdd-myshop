@@ -140,6 +140,8 @@ public class SaleResult {
         public String sku_id;
         @JsonProperty("sale_count")
         public int sale_count;
+        @JsonProperty("img")
+        public String img;
 
         public SkuItem() {
             sale_count=0;
@@ -167,6 +169,14 @@ public class SaleResult {
 
         public void setSale_count(int sale_count) {
             this.sale_count = sale_count;
+        }
+
+        public String getImg() {
+            return img;
+        }
+
+        public void setImg(String img) {
+            this.img = img;
         }
     }
 }
