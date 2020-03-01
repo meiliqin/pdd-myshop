@@ -100,7 +100,7 @@ public class SalesServiceImpl implements SalesService {
     }
 
     @Override
-    public String unsend() {
+    public SaleResult unsend() {
         Date today = new Date();
         SaleResult saleResult = new SaleResult(today.toLocaleString(), UN_SEND_DAY+"天未发货销量数据");
         PopClient client = new PopHttpClient(clientId, clientSecret);
@@ -150,7 +150,7 @@ public class SalesServiceImpl implements SalesService {
 
         String result = JsonUtil.transferToJson(saleResult);
         // writeDateToFile(today.toLocaleString()+"未发货",result);
-        return result;
+        return saleResult;
     }
 
     @Override
