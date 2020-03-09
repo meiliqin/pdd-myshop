@@ -27,9 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static com.ht.weichat.utils.ConstantPool.redirectUri;
-import static com.ht.weichat.utils.ConstantPool.clientId;
-import static com.ht.weichat.utils.ConstantPool.clientSecret;
+import static com.ht.weichat.utils.ConstantPool.*;
 import static com.ht.weichat.utils.GlobalUtils.getDateBefore;
 
 
@@ -104,13 +102,13 @@ public class SalesServiceImpl implements SalesService {
     @Override
     public String unsend() {
         Date today = new Date();
-        SaleResult saleResult = new SaleResult(today.toLocaleString(), "30天未发货销量数据");
+        SaleResult saleResult = new SaleResult(today.toLocaleString(), UN_SEND_DAY+"天未发货销量数据");
         PopClient client = new PopHttpClient(clientId, clientSecret);
         int dayIndex = 1;
         long startTime = today.getTime() / 1000L - 86400 * dayIndex;
         long endTime = today.getTime() / 1000L;
-        //最多统计30天未发货
-        while (dayIndex <= 30) {
+        //最多统计未发货,天数
+        while (dayIndex <= UN_SEND_DAY) {
             PddOrderListGetResponse firstResponse = getOrderListGetResponse(client, 1, startTime, endTime, 1);
             if (firstResponse == null) {
                 logger.info("获取数据失败");

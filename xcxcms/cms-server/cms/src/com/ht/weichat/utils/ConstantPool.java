@@ -17,6 +17,8 @@ public class ConstantPool {
     public static final String Key_AccessToken = "accessToken";
     public static final String Key_SyncSalesDate = "syncSalesDate";
 
+    public static final int UN_SEND_DAY = 50;
+
     //    public static final String IP = "http://118.89.227.195:8080";
     public static final String IP = "https://www.chengzhipcx.xyz/cms";
 
