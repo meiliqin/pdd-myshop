@@ -81,9 +81,8 @@ public class PageController {
 
     @RequestMapping("/query_unsend_sales")
     public String showUnSendSales(Model model) {
-        SaleResult result = salesService.unsend();
-        model.addAttribute("saleResult", result);
-        model.addAttribute("unsend_sales", result!=null?"昨日销量统计":"可能是access_token已过期,请刷新");
+        String result = salesService.unsend();
+        model.addAttribute("unsend_sales", result);
 
         return "query_unsend_sales";
     }
