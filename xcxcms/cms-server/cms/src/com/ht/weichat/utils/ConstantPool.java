@@ -9,8 +9,8 @@ public class ConstantPool {
     public static final String clientSecret = "f821108d75c0dc7951e94cdd27103a28d19c7839";
 
     //宠宠欲动店
-//    public static final String clientId = "fc5a5dd539f5423f85fe9038fc2be76a";
-//    public static final String clientSecret = "555c19fe7c7e374683c99faf46dd3dc7892c19dc";
+    //public static final String clientId = "fc5a5dd539f5423f85fe9038fc2be76a";
+    // public static final String clientSecret = "555c19fe7c7e374683c99faf46dd3dc7892c19dc";
 
     public static final String redirectUri = "https://mms.pinduoduo.com";
 
