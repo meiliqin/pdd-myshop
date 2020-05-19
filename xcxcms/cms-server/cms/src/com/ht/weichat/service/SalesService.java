@@ -11,7 +11,7 @@ public interface SalesService {
     public  String getCodeUrl();
     public String getAccessTokenFromCode(String code);
     public String getCurAccessToken();
-    public SaleResult unsend();
+    public String unsend();
     public String week();
 
     void save(TbDateSales tbDateSales) throws Exception;
