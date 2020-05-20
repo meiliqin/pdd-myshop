@@ -12,7 +12,7 @@ public interface SalesService {
     public String getAccessTokenFromCode(String code);
     public String getCurAccessToken();
     public SaleResult unsend();
-    public String week();
+    public SaleResult week();
 
     void save(TbDateSales tbDateSales) throws Exception;
     public SaleResult getDateSales(String date) ;

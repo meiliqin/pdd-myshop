@@ -148,13 +148,13 @@ public class SalesServiceImpl implements SalesService {
             Collections.sort(goodItem.sku_list, new SkuComparator());
         }
 
-        String result = JsonUtil.transferToJson(saleResult);
+//        String result = JsonUtil.transferToJson(saleResult);
         // writeDateToFile(today.toLocaleString()+"未发货",result);
         return saleResult;
     }
 
     @Override
-    public String week() {
+    public SaleResult week() {
         SaleResult weekSalesResult = new SaleResult(getDateBefore(0), "周销量");
         for (int i = 1; i <= 7; i++) {
             String date = getDateBefore(i);
@@ -194,8 +194,13 @@ public class SalesServiceImpl implements SalesService {
             }
         }
 
-        String result = JsonUtil.transferToJson(weekSalesResult);
-        return result;
+        Collections.sort(weekSalesResult.daySale, new GoodComparator());
+        for (SaleResult.GoodItem goodItem : weekSalesResult.daySale) {
+            Collections.sort(goodItem.sku_list, new SkuComparator());
+        }
+
+//        String result = JsonUtil.transferToJson(weekSalesResult);
+        return weekSalesResult;
     }
 
 //    private void writeDateToFile(String filename, String sales) {
