@@ -36,6 +36,8 @@ public class StockResult {
         public long goods_id;
         @JsonProperty("good_stock_quantity")
         public int good_stock_quantity;
+        @JsonProperty("sale_count")
+        public int sale_count;
         @JsonProperty("sku_list")
         public List<SkuItem> sku_list;
 
@@ -73,6 +75,14 @@ public class StockResult {
 
         public void setGood_stock_quantity(int good_stock_quantity) {
             this.good_stock_quantity = good_stock_quantity;
+        }
+
+        public int getSale_count() {
+            return sale_count;
+        }
+
+        public void setSale_count(int sale_count) {
+            this.sale_count = sale_count;
         }
 
         public List<SkuItem> getSku_list() {

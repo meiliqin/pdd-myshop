@@ -102,7 +102,7 @@ public class PageController {
         logger.info("正在执行showStock");
         StockResult stockResult1 = stockService.queryStockResult();
         StockResult stockResult2=stockService.syncSales(stockResult1);
-
+        Collections.sort(stockResult2.goodStockList, new GoodStockComparator());
 //            model.addAttribute("goodStockList", goodStockList);
 //            model.addAttribute("goodSize", goodStockList.size());
         model.addAttribute("stockResult", stockResult2);

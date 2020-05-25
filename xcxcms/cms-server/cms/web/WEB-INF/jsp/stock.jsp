@@ -23,7 +23,7 @@
     <caption align="top">库存表</caption>
     <tr>
         <th>商品id</th>
-        <th>商品名</th>
+<%--        <th>商品名</th>--%>
         <th>商品图片</th>
         <th>skuId</th>
         <th>sku描述</th>
@@ -35,7 +35,7 @@
         <c:forEach var="skuItem" items="${goodItem.sku_list}" varStatus="status">
             <tr>
                 <td>${goodItem.goods_id}</td>
-                <td>${goodItem.goods_name}</td>
+<%--                <td>${goodItem.goods_name}</td>--%>
                 <td>
                     <img style="width: 100px; height: 100px;" src="${goodItem.thumb_url}">
                 </td>
@@ -81,7 +81,7 @@
                 arry.push({
                     "goodId": $(tds[0]).html(),
                     "skuId": $(tds[3]).html(),
-                    "stock_quantity": $(tds[5]).find("input").val(),
+                    "stock_quantity": $(tds[4]).find("input").val(),
                 });
             }
         }
