@@ -150,7 +150,7 @@ public class StockServiceImpl implements StockService {
                 goodItem.goods_id = goodsListItem.getGoodsId();
                 goodItem.goods_name = goodsListItem.getGoodsName();
                 goodItem.thumb_url = goodsListItem.getThumbUrl();
-                goodItem.sale_count=0;
+                goodItem.yesterday_sale_count = 0;
                 List<PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem> skuListItems = goodsListItem.getSkuList();
 
                 for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem skuListItem : skuListItems) {
@@ -189,19 +189,19 @@ public class StockServiceImpl implements StockService {
     @Override
     public StockResult syncSales(StockResult stockResult) {
         TbKeyValue tbKeyValue = tbKeyValueMapper.selectByPrimaryKey(ConstantPool.Key_SyncSalesDate);
-        if(tbKeyValue==null){
+        if (tbKeyValue == null) {
             return stockResult;
         }
         String lastDate = tbKeyValue.getInfoValue();
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date last = simpleDateFormat.parse(lastDate);//假设每天操作一次 上次保存的昨天2020-2-7
-            logger.info("上次盘点日期是："+lastDate);
+            logger.info("上次盘点日期是：" + lastDate);
             Date cur = new Date();//今天 2020-2-9
-            int daydiff = GlobalUtils.getDayDiffer(last, cur)-1;
-            for (int i = 1; i <=daydiff; i++) {
-                String date=getDateBefore(i);
-                logger.info("正在减去销量："+date);
+            int daydiff = GlobalUtils.getDayDiffer(last, cur) - 1;
+            for (int i = 1; i <= daydiff; i++) {
+                String date = getDateBefore(i);
+                logger.info("正在减去销量：" + date);
                 TbDateSales dateSales = tbDateSalesMapper.selectByPrimaryKey(date);
                 SaleResult daySaleResult = null;
                 if (dateSales != null) {
@@ -210,8 +210,8 @@ public class StockServiceImpl implements StockService {
                 } else {
                     daySaleResult = salesService.getDateSales(date);
                 }
-                Map<String,Integer> salesMap=new HashMap<>();
-                if(daySaleResult.daySale!=null) {
+                Map<String, Integer> salesMap = new HashMap<>();
+                if (daySaleResult.daySale != null) {
                     for (SaleResult.GoodItem saleGoodItem : daySaleResult.daySale) {
                         for (SaleResult.SkuItem saleSkuItem : saleGoodItem.sku_list) {
                             salesMap.put(saleSkuItem.sku_id, saleSkuItem.sale_count);
@@ -219,14 +219,46 @@ public class StockServiceImpl implements StockService {
                     }
 
                 }
-                logger.info("salesMap size is："+salesMap.size());
-                if(stockResult.goodStockList!=null) {
+                logger.info("salesMap size is：" + salesMap.size());
+                if (stockResult.goodStockList != null) {
                     for (StockResult.GoodItem goodItem : stockResult.goodStockList) {
                         for (StockResult.SkuItem skuItem : goodItem.sku_list) {
                             Integer salesCount = salesMap.get(String.valueOf(skuItem.sku_id));
                             if (salesCount != null) {
                                 skuItem.setSku_stock_quantity(skuItem.sku_stock_quantity - salesCount);
-                                goodItem.sale_count+=salesCount;
+                                if (i == 1) {
+                                    goodItem.yesterday_sale_count += salesCount;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //仅计算昨日销量，用来排序
+            if (daydiff == 0) {
+                String date = getDateBefore(1);
+                TbDateSales dateSales = tbDateSalesMapper.selectByPrimaryKey(date);
+                SaleResult daySaleResult = null;
+                if (dateSales != null) {
+                    daySaleResult = JsonUtil.transferToObj(dateSales.getJsonSalesResult(), SaleResult.class);
+                } else {
+                    daySaleResult = salesService.getDateSales(date);
+                }
+                Map<String, Integer> salesMap = new HashMap<>();
+                if (daySaleResult.daySale != null) {
+                    for (SaleResult.GoodItem saleGoodItem : daySaleResult.daySale) {
+                        for (SaleResult.SkuItem saleSkuItem : saleGoodItem.sku_list) {
+                            salesMap.put(saleSkuItem.sku_id, saleSkuItem.sale_count);
+                        }
+                    }
+
+                }
+                if (stockResult.goodStockList != null) {
+                    for (StockResult.GoodItem goodItem : stockResult.goodStockList) {
+                        for (StockResult.SkuItem skuItem : goodItem.sku_list) {
+                            Integer salesCount = salesMap.get(String.valueOf(skuItem.sku_id));
+                            if (salesCount != null) {
+                                goodItem.yesterday_sale_count += salesCount;
                             }
                         }
                     }
@@ -237,7 +269,6 @@ public class StockServiceImpl implements StockService {
         }
         return stockResult;
     }
-
 
 
 }

@@ -80,7 +80,7 @@
             if (tds.length > 0) {
                 arry.push({
                     "goodId": $(tds[0]).html(),
-                    "skuId": $(tds[3]).html(),
+                    "skuId": $(tds[2]).html(),
                     "stock_quantity": $(tds[4]).find("input").val(),
                 });
             }
