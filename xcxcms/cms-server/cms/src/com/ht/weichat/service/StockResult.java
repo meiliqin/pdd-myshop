@@ -36,8 +36,8 @@ public class StockResult {
         public long goods_id;
         @JsonProperty("good_stock_quantity")
         public int good_stock_quantity;
-        @JsonProperty("yesterday_sale_count")
-        public int yesterday_sale_count;
+        @JsonProperty("ave_day_sale_count")
+        public int ave_day_sale_count;
 
         @JsonProperty("sku_list")
         public List<SkuItem> sku_list;
@@ -78,13 +78,12 @@ public class StockResult {
             this.good_stock_quantity = good_stock_quantity;
         }
 
-
-        public int getYesterday_sale_count() {
-            return yesterday_sale_count;
+        public int getAve_day_sale_count() {
+            return ave_day_sale_count;
         }
 
-        public void setYesterday_sale_count(int yesterday_sale_count) {
-            this.yesterday_sale_count = yesterday_sale_count;
+        public void setAve_day_sale_count(int ave_day_sale_count) {
+            this.ave_day_sale_count = ave_day_sale_count;
         }
 
         public List<SkuItem> getSku_list() {
@@ -103,6 +102,10 @@ public class StockResult {
         public long sku_id;
         @JsonProperty("sku_stock_quantity")
         public int sku_stock_quantity;
+        @JsonProperty("ave_day_sale_count")
+        public int ave_day_sale_count;
+        @JsonProperty("keep_day")
+        public int keep_day;
 
         public String getSpec() {
             return spec;
@@ -126,6 +129,22 @@ public class StockResult {
 
         public void setSku_stock_quantity(int sku_stock_quantity) {
             this.sku_stock_quantity = sku_stock_quantity;
+        }
+
+        public int getKeep_day() {
+            return keep_day;
+        }
+
+        public void setKeep_day(int keep_day) {
+            this.keep_day = keep_day;
+        }
+
+        public int getAve_day_sale_count() {
+            return ave_day_sale_count;
+        }
+
+        public void setAve_day_sale_count(int ave_day_sale_count) {
+            this.ave_day_sale_count = ave_day_sale_count;
         }
     }
 }

@@ -42,7 +42,7 @@ public class PageController {
 
     @RequestMapping("/")
     public String showIndex(Model model) {
-        return "index";
+        return "login";
     }
 
     @RequestMapping("/index")
@@ -148,16 +148,16 @@ public class PageController {
 
     @RequestMapping("/cms")
     public String showCms(Model model) {
-        return "login";
+        return "home";
     }
 
     @RequestMapping("/admin")
     public String showAdmin(Model model, HttpServletRequest request) {
         TbAccount account = (TbAccount) request.getSession().getAttribute("global.account");
 //        if (account == null){
-        return "login";
+//       null return "login";
 //        } else {
-//            return "redirect:/home";
+           return "redirect:/home";
 //        }
     }
 

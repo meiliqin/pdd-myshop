@@ -14,10 +14,15 @@ public interface TbStockMapper {
     List<TbStock> selectStocksByPrimaryKey(List<String> skuIdList);
 
 
-    int updateByPrimaryKey(TbStock record);
+//    int updateByPrimaryKey(TbStock record);
 
-    int updateStockQuantity(@Param("goodId")String goodId, @Param("skuId")String skuId, @Param("quantity")int quantity);
+//    int updateStockQuantity(@Param("goodId")String goodId, @Param("skuId")String skuId, @Param("quantity")int quantity);
 
     int updateStockQuantityList(List<TbStock> tbStockList);
+
+    int updateStockDaySaleCountList(List<TbStock> tbStockList);
+
+    int updateStockKeepDayList(List<TbStock> tbStockList);
+
 
 }

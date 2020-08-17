@@ -28,6 +28,19 @@
 
 <br>
 
+<div class="login-box-body" align="center" >
+
+
+        <form action="${pageContext.request.contextPath}/user/login" method="post">
+            <input type="date" name="calendar" class="form-control" placeholder="选择日期查询销量">
+            <button type="submit" class="btn btn-primary btn-block btn-flat">查询选定日期销量</button>
+        </form>
+
+</div>
+
+
+<br>
+
 <table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
     <tr>
         <td>
@@ -47,13 +60,9 @@
     </tr>
 </table>
 <br>
-<table cellpadding="0" cellspacing="0" border="1" width="500px" align="center">
-    <tr>
-        <td>
-            <a href="${pageContext.request.contextPath}/cms">一个参考示例cms</a>
-        </td>
-    </tr>
-</table>
+
+
+
 
 
 </body>

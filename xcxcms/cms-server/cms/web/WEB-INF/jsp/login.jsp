@@ -21,7 +21,7 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="#">后台管理</a>
+        <a href="#">火小凡后台管理</a>
     </div>
 
     <div class="login-box-body">

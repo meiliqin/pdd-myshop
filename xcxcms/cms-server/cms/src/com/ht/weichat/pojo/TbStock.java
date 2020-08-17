@@ -19,8 +19,11 @@ public class TbStock {
 
     private Date updatTime;
 
-
     private Date creatTime;
+
+    private int ave_day_sale_count;
+
+    private  int keep_day;
 
     public String getGoodId() {
         return goodId;
@@ -94,6 +97,19 @@ public class TbStock {
         this.creatTime = creattime;
     }
 
+    public int getAve_day_sale_count() {
+        return ave_day_sale_count;
+    }
 
+    public void setAve_day_sale_count(int ave_day_sale_count) {
+        this.ave_day_sale_count = ave_day_sale_count;
+    }
 
+    public int getKeep_day() {
+        return keep_day;
+    }
+
+    public void setKeep_day(int keep_day) {
+        this.keep_day = keep_day;
+    }
 }

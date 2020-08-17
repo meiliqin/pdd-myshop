@@ -27,7 +27,10 @@
         <th>商品图片</th>
         <th>skuId</th>
         <th>sku描述</th>
+        <th>日均销量</th>
         <th>库存数量</th>
+        <th>维持天数</th>
+
 
     </tr>
     <tbody id="containner">
@@ -35,18 +38,19 @@
         <c:forEach var="skuItem" items="${goodItem.sku_list}" varStatus="status">
             <tr>
                 <td>${goodItem.goods_id}</td>
-<%--                <td>${goodItem.goods_name}</td>--%>
                 <td>
                     <img style="width: 100px; height: 100px;" src="${goodItem.thumb_url}">
                 </td>
                 <td>${skuItem.sku_id}</td>
                 <td>${skuItem.spec}</td>
+                <td>${skuItem.ave_day_sale_count}</td>
 
-                    <%--            <td>${skuItem.sku_stock_quantity}</td>--%>
                 <td>
                     <input type="number" name="goodItem.sku_list[${status.index}].stock_quantity"
                            value="${skuItem.sku_stock_quantity}">
                 </td>
+                <td>${skuItem.keep_day}</td>
+
 
             </tr>
         </c:forEach>
@@ -81,7 +85,7 @@
                 arry.push({
                     "goodId": $(tds[0]).html(),
                     "skuId": $(tds[2]).html(),
-                    "stock_quantity": $(tds[4]).find("input").val(),
+                    "stock_quantity": $(tds[5]).find("input").val(),
                 });
             }
         }

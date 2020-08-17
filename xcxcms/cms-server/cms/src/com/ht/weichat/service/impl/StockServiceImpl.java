@@ -81,6 +81,9 @@ public class StockServiceImpl implements StockService {
                         TbStock tbStock = tbStockMap.get(String.valueOf(skuItem.sku_id));
                         if (tbStock != null) {
                             skuItem.setSku_stock_quantity(tbStock.getStock());
+                            skuItem.setAve_day_sale_count(tbStock.getAve_day_sale_count());
+                            skuItem.setKeep_day(tbStock.getKeep_day());
+                            goodItem.ave_day_sale_count+=skuItem.ave_day_sale_count;
                             logger.info("tbStock skuId:" + tbStock.getSkuId() + "skuItem skuId:" + skuItem.sku_id + "查询到库存：" + tbStock.getStock());
                         } else {
                             TbStock tbStock1 = new TbStock();
@@ -89,6 +92,8 @@ public class StockServiceImpl implements StockService {
                             tbStock1.setGoodName(goodItem.goods_name);
                             tbStock1.setThumbUrl(goodItem.thumb_url);
                             tbStock1.setSkuSpec(skuItem.spec);
+                            tbStock1.setAve_day_sale_count(skuItem.ave_day_sale_count);
+                            tbStock1.setKeep_day(skuItem.keep_day);
                             insert(tbStock1);
                             logger.info("成功插入");
                         }
@@ -126,6 +131,8 @@ public class StockServiceImpl implements StockService {
     @Override
     public void updateStockList(List<TbStock> tbStockList) {
         tbStockMapper.updateStockQuantityList(tbStockList);
+        tbStockMapper.updateStockDaySaleCountList(tbStockList);
+        tbStockMapper.updateStockKeepDayList(tbStockList);
     }
 
     public String getCurAccessToken() {
@@ -150,7 +157,7 @@ public class StockServiceImpl implements StockService {
                 goodItem.goods_id = goodsListItem.getGoodsId();
                 goodItem.goods_name = goodsListItem.getGoodsName();
                 goodItem.thumb_url = goodsListItem.getThumbUrl();
-                goodItem.yesterday_sale_count = 0;
+                goodItem.ave_day_sale_count = 0;
                 List<PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem> skuListItems = goodsListItem.getSkuList();
 
                 for (PddGoodsListGetResponse.GoodsListGetResponseGoodsListItemSkuListItem skuListItem : skuListItems) {
@@ -158,6 +165,8 @@ public class StockServiceImpl implements StockService {
                     skuItem.sku_id = skuListItem.getSkuId();
                     skuItem.spec = skuListItem.getSpec();
                     skuItem.sku_stock_quantity = 0;
+                    skuItem.ave_day_sale_count=0;
+                    skuItem.keep_day=0;
                     goodItem.sku_list.add(skuItem);
                 }
                 goodItem.good_stock_quantity = 0;
@@ -226,44 +235,53 @@ public class StockServiceImpl implements StockService {
                             Integer salesCount = salesMap.get(String.valueOf(skuItem.sku_id));
                             if (salesCount != null) {
                                 skuItem.setSku_stock_quantity(skuItem.sku_stock_quantity - salesCount);
-                                if (i == 1) {
-                                    goodItem.yesterday_sale_count += salesCount;
-                                }
+                                skuItem.ave_day_sale_count+=salesCount;
                             }
                         }
+                    }
+                }
+            }
+            if (daydiff>0 && stockResult.goodStockList != null) {
+                for (StockResult.GoodItem goodItem : stockResult.goodStockList) {
+                    for (StockResult.SkuItem skuItem : goodItem.sku_list) {
+                        skuItem.ave_day_sale_count=(int)(skuItem.ave_day_sale_count*1.0f/daydiff);
+                        if(skuItem.ave_day_sale_count>0) {
+                            skuItem.keep_day = (int) (skuItem.sku_stock_quantity * 1.0f / skuItem.ave_day_sale_count);
+                        }
+                        goodItem.ave_day_sale_count+=skuItem.ave_day_sale_count;
                     }
                 }
             }
             //仅计算昨日销量，用来排序
-            if (daydiff == 0) {
-                String date = getDateBefore(1);
-                TbDateSales dateSales = tbDateSalesMapper.selectByPrimaryKey(date);
-                SaleResult daySaleResult = null;
-                if (dateSales != null) {
-                    daySaleResult = JsonUtil.transferToObj(dateSales.getJsonSalesResult(), SaleResult.class);
-                } else {
-                    daySaleResult = salesService.getDateSales(date);
-                }
-                Map<String, Integer> salesMap = new HashMap<>();
-                if (daySaleResult.daySale != null) {
-                    for (SaleResult.GoodItem saleGoodItem : daySaleResult.daySale) {
-                        for (SaleResult.SkuItem saleSkuItem : saleGoodItem.sku_list) {
-                            salesMap.put(saleSkuItem.sku_id, saleSkuItem.sale_count);
-                        }
-                    }
-
-                }
-                if (stockResult.goodStockList != null) {
-                    for (StockResult.GoodItem goodItem : stockResult.goodStockList) {
-                        for (StockResult.SkuItem skuItem : goodItem.sku_list) {
-                            Integer salesCount = salesMap.get(String.valueOf(skuItem.sku_id));
-                            if (salesCount != null) {
-                                goodItem.yesterday_sale_count += salesCount;
-                            }
-                        }
-                    }
-                }
-            }
+//            if (daydiff == 0) {
+//                String date = getDateBefore(1);
+//                TbDateSales dateSales = tbDateSalesMapper.selectByPrimaryKey(date);
+//                SaleResult daySaleResult = null;
+//                if (dateSales != null) {
+//                    daySaleResult = JsonUtil.transferToObj(dateSales.getJsonSalesResult(), SaleResult.class);
+//                } else {
+//                    daySaleResult = salesService.getDateSales(date);
+//                }
+//                Map<String, Integer> salesMap = new HashMap<>();
+//                if (daySaleResult.daySale != null) {
+//                    for (SaleResult.GoodItem saleGoodItem : daySaleResult.daySale) {
+//                        for (SaleResult.SkuItem saleSkuItem : saleGoodItem.sku_list) {
+//                            salesMap.put(saleSkuItem.sku_id, saleSkuItem.sale_count);
+//                        }
+//                    }
+//
+//                }
+//                if (stockResult.goodStockList != null) {
+//                    for (StockResult.GoodItem goodItem : stockResult.goodStockList) {
+//                        for (StockResult.SkuItem skuItem : goodItem.sku_list) {
+//                            Integer salesCount = salesMap.get(String.valueOf(skuItem.sku_id));
+//                            if (salesCount != null) {
+//                                goodItem.yesterday_sale_count += salesCount;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         } catch (ParseException e) {
             e.printStackTrace();
         }

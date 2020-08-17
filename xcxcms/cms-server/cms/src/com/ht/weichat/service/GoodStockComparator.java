@@ -9,7 +9,7 @@ import java.util.Comparator;
 public class GoodStockComparator implements Comparator<StockResult.GoodItem> {
     @Override
     public int compare(StockResult.GoodItem goodItem1, StockResult.GoodItem goodItem2) {
-        int diff = goodItem1.yesterday_sale_count - goodItem2.yesterday_sale_count;
+        int diff = goodItem1.ave_day_sale_count - goodItem2.ave_day_sale_count;
         if (diff > 0) {
             return -1;
         } else if (diff < 0) {

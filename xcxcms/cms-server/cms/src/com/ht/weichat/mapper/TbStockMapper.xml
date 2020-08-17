@@ -11,20 +11,23 @@
         <result column="stock" property="stock" jdbcType="INTEGER"/>
         <result column="updatTime" property="updatTime" jdbcType="TIMESTAMP"/>
         <result column="creatTime" property="creatTime" jdbcType="TIMESTAMP"/>
+        <result column="ave_day_sale_count" property="ave_day_sale_count" jdbcType="INTEGER"/>
+        <result column="keep_day" property="keep_day" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-    goodId, skuId,goodName,thumbUrl,skuSpec,skuUrl,stock,updatTime,creatTime
+    goodId, skuId,goodName,thumbUrl,skuSpec,skuUrl,stock,updatTime,creatTime,ave_day_sale_count,keep_day
   </sql>
     <insert id="insert" parameterType="com.ht.weichat.pojo.TbStock">
     insert into tb_stock (goodId,skuId,
     goodName,thumbUrl,skuSpec,skuUrl,stock,
-       updatTime, creatTime)
+       updatTime, creatTime,ave_day_sale_count,keep_day)
     values (#{goodId,jdbcType=VARCHAR}, #{skuId,jdbcType=VARCHAR},
      #{goodName,jdbcType=VARCHAR}, #{thumbUrl,jdbcType=VARCHAR},
           #{skuSpec,jdbcType=VARCHAR},  #{skuUrl,jdbcType=VARCHAR},
           #{stock,jdbcType=INTEGER},
-      #{updatTime,jdbcType=TIMESTAMP}, #{creatTime,jdbcType=TIMESTAMP}
+      #{updatTime,jdbcType=TIMESTAMP}, #{creatTime,jdbcType=TIMESTAMP
+      #{ave_day_sale_count,jdbcType=INTEGER},#{keep_day,jdbcType=INTEGER}}
       )
   </insert>
 
@@ -36,25 +39,25 @@
         where skuId = #{skuId}
     </select>
 
-    <update id="updateByPrimaryKey" parameterType="com.ht.weichat.pojo.TbStock">
-    update tb_stock
-    set
-    goodId = #{goodId,jdbcType=VARCHAR},
-    goodName = #{goodName,jdbcType=VARCHAR},
-      thumbUrl = #{thumbUrl,jdbcType=VARCHAR},
-      skuSpec = #{skuSpec,jdbcType=VARCHAR},
-      skuUrl = #{skuUrl,jdbcType=VARCHAR},
-      stock = #{stock,jdbcType=INTEGER},
-      updatTime = #{updattime,jdbcType=TIMESTAMP},
-      creatTime = #{creattime,jdbcType=TIMESTAMP}
-    where skuId = #{skuId,jdbcType=VARCHAR}
-  </update>
+<!--    <update id="updateByPrimaryKey" parameterType="com.ht.weichat.pojo.TbStock">-->
+<!--    update tb_stock-->
+<!--    set-->
+<!--    goodId = #{goodId,jdbcType=VARCHAR},-->
+<!--    goodName = #{goodName,jdbcType=VARCHAR},-->
+<!--      thumbUrl = #{thumbUrl,jdbcType=VARCHAR},-->
+<!--      skuSpec = #{skuSpec,jdbcType=VARCHAR},-->
+<!--      skuUrl = #{skuUrl,jdbcType=VARCHAR},-->
+<!--      stock = #{stock,jdbcType=INTEGER},-->
+<!--      updatTime = #{updattime,jdbcType=TIMESTAMP},-->
+<!--      creatTime = #{creattime,jdbcType=TIMESTAMP}-->
+<!--    where skuId = #{skuId,jdbcType=VARCHAR}-->
+<!--  </update>-->
 
-    <update id="updateStockQuantity" parameterType="map">
-    update tb_stock
-    set stock = #{quantity}
-    where goodId= #{goodId} and skuId = #{skuId}
-  </update>
+<!--    <update id="updateStockQuantity" parameterType="map">-->
+<!--    update tb_stock-->
+<!--    set stock = #{quantity}-->
+<!--    where goodId= #{goodId} and skuId = #{skuId}-->
+<!--  </update>-->
 
 
     <update id="updateStockQuantityList" parameterType="java.util.List">
@@ -75,6 +78,44 @@
         </foreach>
 
     </update>
+
+    <update id="updateStockDaySaleCountList" parameterType="java.util.List">
+        update tb_stock
+        <trim prefix="set" suffixOverrides=",">
+
+            <trim prefix="ave_day_sale_count =case" suffix="end,">
+                <foreach item="item" collection="list">
+                    when tb_stock.skuId = (#{item.skuId})
+                    then #{item.ave_day_sale_count}
+                </foreach>
+            </trim>
+
+        </trim>
+        where
+        <foreach item="item" collection="list" separator="or">
+            (tb_stock.skuId = (#{item.skuId}))
+        </foreach>
+
+    </update>
+
+    <update id="updateStockKeepDayList" parameterType="java.util.List">
+        update tb_stock
+        <trim prefix="set" suffixOverrides=",">
+
+            <trim prefix="keep_day =case" suffix="end,">
+                <foreach item="item" collection="list">
+                    when tb_stock.skuId = (#{item.skuId})
+                    then #{item.keep_day}
+                </foreach>
+            </trim>
+
+        </trim>
+        where
+        <foreach item="item" collection="list" separator="or">
+            (tb_stock.skuId = (#{item.skuId}))
+        </foreach>
+    </update>
+
 
     <select id="selectStocksByPrimaryKey" resultType="com.ht.weichat.pojo.TbStock" parameterType="java.util.List">
         select

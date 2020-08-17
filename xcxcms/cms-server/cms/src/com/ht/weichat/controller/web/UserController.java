@@ -20,18 +20,28 @@ public class UserController {
     @Autowired
     private AccountService accountService;
 
+//    @RequestMapping(value = "login",method = RequestMethod.POST)
+//    public String login(String username, String password, Model model, HttpServletRequest request){
+//        TbAccount tbAccount = accountService.login(username, password);
+//        if (tbAccount != null){
+//            request.getSession().setAttribute("global.account", tbAccount);
+//            return "redirect:/home";
+//        } else {
+//            model.addAttribute("msg", "用户名密码不存在,请重新登陆");
+//            return "login";
+//        }
+//    }
+
+
     @RequestMapping(value = "login",method = RequestMethod.POST)
     public String login(String username, String password, Model model, HttpServletRequest request){
-        TbAccount tbAccount = accountService.login(username, password);
-        if (tbAccount != null){
-            request.getSession().setAttribute("global.account", tbAccount);
-            return "redirect:/home";
+        if (username.equals("hxf") && password.equals("123456")){
+            return "index";
         } else {
             model.addAttribute("msg", "用户名密码不存在,请重新登陆");
             return "login";
         }
     }
-
     @RequestMapping("home")
     public String home(){
         return "userHome";
