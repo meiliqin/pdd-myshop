@@ -6,7 +6,6 @@ import com.ht.weichat.pojo.TbStock;
 import com.ht.weichat.pojo.TbType;
 import com.ht.weichat.service.*;
 import com.ht.weichat.utils.ConstantPool;
-import com.pdd.pop.sdk.common.util.JsonUtil;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,10 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -42,7 +40,9 @@ public class PageController {
 
     @RequestMapping("/")
     public String showIndex(Model model) {
-        return "login";
+//        return "login";
+        return "index";
+
     }
 
     @RequestMapping("/index")
@@ -54,12 +54,23 @@ public class PageController {
         return "index";
     }
 
+
+    @RequestMapping(value = "/query_date_sales",method = RequestMethod.POST)
+    public String showDateSales(String calendar, Model model, HttpServletRequest request){
+        logger.info("date:"+calendar);
+       // String day = new SimpleDateFormat("yyyy-MM-dd").format(calendar);
+        SaleResult result = salesService.getDateSales(calendar);
+        model.addAttribute("saleResult", result);
+        model.addAttribute("date_sales", result!=null?calendar+"日销量统计":"可能是access_token已过期,请刷新");
+        return "query_date_sales";
+    }
+
     @RequestMapping("/query_yesterday_sales")
     public String showYesterdaySales(Model model) {
         SaleResult result = salesService.yesterday();
         model.addAttribute("saleResult", result);
-        model.addAttribute("yesterday_sales", result!=null?"昨日销量统计":"可能是access_token已过期,请刷新");
-        return "query_yesterday_sales";
+        model.addAttribute("date_sales", result!=null?"昨日销量统计":"可能是access_token已过期,请刷新");
+        return "query_date_sales";
     }
 
     @RequestMapping("/refresh_access_token")

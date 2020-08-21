@@ -18,12 +18,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>昨日销量统计</title>
+    <title>日销量统计</title>
 </head>
 <body>
 
 <div id="sales_result1" style="text-align: center; margin-top: 20px;">
-    ${yesterday_sales}
+    ${date_sales}
 </div>
 <br>
 <div id="sales_result2" style="text-align: center; margin-top: 20px;">

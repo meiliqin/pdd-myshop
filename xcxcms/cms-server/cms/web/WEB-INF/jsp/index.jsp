@@ -28,10 +28,10 @@
 
 <br>
 
-<div class="login-box-body" align="center" >
+<div class="date-picker-body" align="center" >
 
 
-        <form action="${pageContext.request.contextPath}/user/login" method="post">
+        <form action="${pageContext.request.contextPath}/query_date_sales" method="post">
             <input type="date" name="calendar" class="form-control" placeholder="选择日期查询销量">
             <button type="submit" class="btn btn-primary btn-block btn-flat">查询选定日期销量</button>
         </form>
