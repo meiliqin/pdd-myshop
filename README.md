@@ -13,10 +13,10 @@
 
 ## 开工
 2020年春节期间的肺炎公司2.3-2.10多放了一个星期的假，总算搞完一个粗糙的工程，先投入使用再慢慢迭代吧。
-2020年一直在迭代使用中。
+目前一直在迭代使用中。
 
 ## 效果图：
-![https://meiliqin.oss-cn-beijing.aliyuncs.com/blog/IMG20200827_101003.png]
+!(https://meiliqin.oss-cn-beijing.aliyuncs.com/blog/IMG20200827_101003.png)
 
 https://meiliqin.oss-cn-beijing.aliyuncs.com/blog/IMG20200827_101003.png?Expires=1598495014&OSSAccessKeyId=TMP.3KjbknXcR6cz3Qfk2Zv7fyiZXDoEb2CXxBHwpgREZ2G1sXdTsJWMKYjvUm5KpbGHKpCThqTgTGMcKn4jaB1rjhmgomXfY1&Signature=naXS14qvPUy0NkCHagG9pZNsD1o%3D
 
