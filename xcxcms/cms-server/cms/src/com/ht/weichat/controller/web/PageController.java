@@ -83,6 +83,11 @@ public class PageController {
         return "refresh_access_token";
     }
 
+    @RequestMapping("/token")
+    public String redirectCode(Model model) {
+        return "token";
+    }
+
     @RequestMapping("/get_access_token")
     public String getAccessToken(Model model, HttpServletRequest request) {
         String code = request.getParameter("code");
